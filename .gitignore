@@ -162,3 +162,8 @@ docker-data/
 # ===========================
 # Add project-specific ignores below
 .envs
+venv_new/
+bridge_env/
+ASL Alphabet/
+data/
+models/
