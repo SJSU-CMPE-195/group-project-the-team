@@ -133,3 +133,31 @@ while cap.isOpened():
             #Doesn't meet the 70% threshold
             current_word = f"Low Conf ({conf_val*100:.0f}%)"
             current_confidence = conf_val
+
+
+   # --- 5. Output Graphics to HUD ---
+   h, w, _ = frame.shape
+   cv2.rectangle(frame, (0, 0), (w, 60), (30, 30, 30), -1)
+  
+   # Draw word
+   color = (0, 255, 0) if current_confidence >= CONFIDENCE_THRESHOLD else (0, 165, 255)
+   cv2.putText(frame, f"Sign: {current_word.upper()}", (20, 40), cv2.FONT_HERSHEY_DUPLEX, 1.0, color, 2)
+  
+   # Draw confidence bar
+   bar_x = w - 220
+   bar_w, bar_h, bar_y = 200, 20, 25
+   cv2.rectangle(frame, (bar_x, bar_y), (bar_x + bar_w, bar_y + bar_h), (60, 60, 60), -1)
+   fill_w = int(bar_w * current_confidence)
+   cv2.rectangle(frame, (bar_x, bar_y), (bar_x + fill_w, bar_y + bar_h), color, -1)
+   cv2.putText(frame, f"Conf: {current_confidence * 100:.0f}%", (bar_x, bar_y - 8),
+               cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1)
+
+
+   cv2.imshow('Live WLASL-10 Inference', frame)
+  
+   if cv2.waitKey(1) & 0xFF == ord('q'):
+       break
+
+
+cap.release()
+cv2.destroyAllWindows()
