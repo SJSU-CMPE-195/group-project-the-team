@@ -1,5 +1,75 @@
-Silent Voice Bridge: The Edge AI ASL InterpreterProject Description > The Silent Voice Bridge is a portable, real-time bidirectional communication system designed to translate American Sign Language (ASL) gestures into English text. By utilizing an NVIDIA Jetson edge computing device, the system processes all data locally to ensure absolute user privacy and low-latency performance without requiring internet connectivity.TeamNameGitHubEmailReuben George@reubengeorgereuben.george@sjsu.eduPwint Thu Thu San@PwintThuThuSanpwintthuthu.san@sjsu.eduAramish Farooq@aramishfaramish.farooq@sjsu.eduNathaniel Ortega@nathanielorteganathaniel.ortega@sjsu.eduAdvisor: Dr. Kaikai LiuCourse: CMPE 195A - Senior Design Project I | San Jose State UniversityProblem StatementCommunication barriers between the hearing world and the 466 million people with disabling hearing loss often limit social, medical, and economic opportunities. DHH individuals currently depend on scarce human interpreters or cloud-based apps that compromise privacy and require constant internet connectivity. Solving this problem through real-time, offline translation is essential for fostering independence and inclusive communication.SolutionThe Silent Voice Bridge is a portable, edge-AI system that uses a webcam and an NVIDIA Jetson device to translate ASL into English text locally. Our approach utilizes a hardware/software co-design that extracts lightweight skeletal landmarks to ensure high-speed performance without uploading sensitive video data to external servers. This creates a secure, low-latency environment for bidirectional communication.Key FeaturesReal-Time Alphabet Recognition: Successfully classifies the static ASL alphabet using a Random Forest Classifier.Efficient Landmark Extraction: Uses MediaPipe to "distill" raw image data into 21 hand landmarks, reducing 15 GB of raw imagery into a 50 MB coordinate-based CSV.Low-Latency Edge Inference: Achieves 30+ FPS with under 300ms of latency, meeting performance targets for natural use.Temporal Smoothing Buffer: Employs "Majority Vote" logic across consecutive frames to eliminate prediction flickering.Privacy-Preserving Offline Logic: Performs all gesture classification locally on the device.Proof of Concept ScopeThe initial PoC serves as the Classification Foundation for the project.What it demonstrates:Real-time recognition of the static ASL alphabet (A-Z).Efficient landmark extraction and dimensionality reduction.A stable vision pipeline optimized for Edge AI hardware.Preprocessing robustness using CLAHE for varied lighting conditions.What is NOT included yet:Recognition of dynamic, word-level signs (Phase 2).Two-handed sign tracking.Bidirectional speech-to-text integration.Tech StackCategoryTechnologyHardwareNVIDIA Jetson Orin Nano (Target), MacBook Air M4 (Dev)Vision EngineOpenCV (CLAHE Normalization)Feature ExtractionMediaPipe (21 Skeletal Landmarks)Machine LearningScikit-learn (Random Forest Classifier)LanguagePython 3.12Getting StartedPrerequisitesPython 3.12WebcamVirtual Environment (Recommended)InstallationBash# Clone the repository
-git clone https://github.com/SJSU-CMPE-195/group-project-the-team.git
+# 🤟 Silent Voice Bridge: The Edge AI ASL Interpreter
+
+> **Phase 1: Proof of Concept (PoC) Milestone** > A portable, real-time bidirectional communication system that translates American Sign Language (ASL) into English text locally on edge hardware.
+
+---
+
+## 👥 The Team
+
+| Name | GitHub | Email |
+| :--- | :--- | :--- |
+| **Reuben George** | [@reubengeorge](https://github.com/reubengeorge) | reuben.george@sjsu.edu |
+| **Pwint Thu Thu San** | [@PwintThuThuSan](https://github.com/PwintThuThuSan) | pwintthuthu.san@sjsu.edu |
+| **Aramish Farooq** | [@aramishf](https://github.com/aramishf) | aramish.farooq@sjsu.edu |
+| **Nathaniel Ortega** | [@nathanielortega](https://github.com/nathanielortega) | nathaniel.ortega@sjsu.edu |
+
+**Advisor:** Dr. Kaikai Liu  
+**Course:** CMPE 195A - Senior Design Project I | **San Jose State University**
+
+---
+
+## 📌 Problem Statement
+Communication barriers between the hearing world and 466 million people with disabling hearing loss limit social and economic opportunities. Existing solutions often require constant internet connectivity and compromise privacy via cloud processing. **Silent Voice Bridge** provides a secure, low-latency, and entirely offline environment for bidirectional communication.
+
+## 💡 The Solution
+Our system utilizes a **hardware/software co-design** that extracts lightweight skeletal landmarks to ensure high-speed performance on edge devices. By processing data locally on an **NVIDIA Jetson**, we guarantee user privacy while maintaining the 30+ FPS required for natural conversation.
+
+---
+
+## 🚀 Key Features
+* **Real-Time Alphabet Recognition:** High-accuracy classification of the static ASL alphabet (A-Z).
+* **Efficient Feature Engineering:** Uses **MediaPipe** to "distill" 15GB of raw imagery into a 50MB coordinate-based CSV.
+* **Low-Latency Performance:** Achieves **30+ FPS** with **<300ms latency**.
+* **Temporal Smoothing:** Custom "Majority Vote" logic eliminates prediction flickering for a stable UI.
+* **Lighting Robustness:** Integrated **CLAHE** (Contrast Limited Adaptive Histogram Equalization) for varying environments.
+
+---
+
+## 🛠 Tech Stack
+
+| Category | Technology |
+| :--- | :--- |
+| **Hardware** | NVIDIA Jetson Orin Nano (Target), MacBook Air M4 (Dev) |
+| **Vision Engine** | OpenCV (CLAHE Normalization) |
+| **Landmark Logic** | MediaPipe (21 Skeletal Hand Landmarks) |
+| **Inference Model** | Scikit-learn (Random Forest Classifier) |
+| **Language** | Python 3.12 |
+
+---
+
+## 📂 Project Structure
+```text
+.
+├── data/               # Processed CSV landmark datasets
+├── models/             # Trained .pkl models & label encoders
+├── src/
+│   ├── create_dataset.py   # Image-to-Landmark distillation
+│   ├── train_model.py      # Random Forest training pipeline
+│   └── live_inference.py   # THE POC: Real-time webcam interpreter
+├── docs/               # Screenshots, GIFs, and architecture diagrams
+└── README.md
+
+
+Prerequisites
+Python 3.12 (Important: Stability target for JetPack)
+
+Standard Webcam
+
+Virtual Environment (Recommended)
+
+Installation
+# Clone the repository
+git clone [https://github.com/SJSU-CMPE-195/group-project-the-team.git](https://github.com/SJSU-CMPE-195/group-project-the-team.git)
 cd group-project-the-team
 
 # Set up virtual environment
@@ -8,14 +78,17 @@ source bridge_env/bin/activate
 
 # Install dependencies
 pip install opencv-python mediapipe==0.10.14 scikit-learn pandas numpy tqdm
-Running the PoCTo run the real-time inference engine:Bashpython src/live_inference.py
-Project StructurePlaintext.
-├── data/               # Processed CSV landmark data
-├── models/             # Trained .pkl models and label encoders
-├── src/                
-│   ├── create_dataset.py   # Script to convert images to landmarks
-│   ├── train_model.py      # Script to train Random Forest
-│   └── live_inference.py   # Main PoC execution script (Webcam)
-├── docs/               # Screenshots and diagrams
-└── README.md
-What's Next (195B)Dynamic Sign Recognition: Implementing LSTM neural networks to analyze motion over 30-frame windows.Vocabulary Expansion: Transitioning to the WLASL dataset for 2,000+ word-level signs.Hardware Optimization: Utilizing NVIDIA TensorRT to accelerate inference on the Jetson GPU.Bidirectional Communication: Integrating Speech-to-Text APIs for full conversation flow.
+
+Running the PoC
+To launch the real-time inference engine:
+
+Bash
+python src/live_inference.py
+⏭️ What's Next (CMPE 195B)
+Dynamic Sign Recognition: Implementing LSTM (Long Short-Term Memory) networks for 30-frame motion analysis.
+
+Vocabulary Expansion: Transitioning to the WLASL dataset for 2,000+ word-level signs.
+
+Hardware Optimization: Utilizing NVIDIA TensorRT for GPU-accelerated inference.
+
+Bidirectional Flow: Integrating Speech-to-Text APIs for a complete conversation loop.
