@@ -6,12 +6,12 @@
 
 | Name | GitHub | Email |
 |------|--------|-------|
-| Name 1 | [@username](https://github.com/username) | name@sjsu.edu |
-| Name 2 | [@username](https://github.com/username) | name@sjsu.edu |
-| Name 3 | [@username](https://github.com/username) | name@sjsu.edu |
-| Name 4 | [@username](https://github.com/username) | name@sjsu.edu |
+| Reuben George | [@username](https://github.com/username) | reuben.george@sjsu.edu |
+| Pwint Thu Thu San | [@username](https://github.com/PwintThuThuSan) | pwintthuthu.san@sjsu.edu |
+| Aramish Farooq | [@username](https://github.com/username) | aramish.farooq@sjsu.edu |
+| Nathaniel Ortega | [@username](https://github.com/username) | nathaniel.ortega@sjsu.edu |
 
-**Advisor:** [Advisor Name]
+**Advisor:** [Kaikai Liu]
 
 ---
 
