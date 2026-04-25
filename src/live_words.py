@@ -8,23 +8,26 @@ import pickle
 from collections import deque
 import warnings
 from stgcn_model import SignLanguageSTGCN
+from sentence_engine import SentenceEngine
 
 warnings.filterwarnings('ignore')
 
-# --- Configuration ---
-MODEL_PATH = 'models/citizen10_stgcn.pth'
-ENCODER_PATH = 'models/label_encoder_citizen10.pkl'
+# --- 1. Configuration ---
+MODEL_PATH = 'models/citizen20_stgcn.pth'
+ENCODER_PATH = 'models/label_encoder_citizen20.pkl'
 CONFIDENCE_THRESHOLD = 0.45
 SEQUENCE_LENGTH = 30
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu')
 
-# Load Model
+# Load Model & Engine
 with open(ENCODER_PATH, 'rb') as f:
     label_encoder = pickle.load(f)
 model = SignLanguageSTGCN(num_classes=len(label_encoder.classes_)).to(device)
 model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
 model.eval()
+
+engine = SentenceEngine(confidence_threshold=0.5)
 
 # MediaPipe
 mp_hands = mp.solutions.hands
@@ -35,8 +38,9 @@ cap = cv2.VideoCapture(0)
 sequence_queue = deque(maxlen=SEQUENCE_LENGTH)
 current_word = "..."
 current_confidence = 0.0
+full_sentence = ""
 
-print("\nStarting DEDICATED WORD/GESTURE Inference. Press 'q' to quit.")
+print("\nStarting SENTENCE-BUILDER Inference. Press 'q' to quit, 'r' to reset sentence.")
 
 while cap.isOpened():
     success, frame = cap.read()
@@ -48,8 +52,10 @@ while cap.isOpened():
     
     right_hand = [0] * 63
     left_hand = [0] * 63
+    hand_count = 0
     
     if results.multi_hand_landmarks:
+        hand_count = len(results.multi_hand_landmarks)
         for i, hand_landmarks in enumerate(results.multi_hand_landmarks):
             mp_drawing.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
             label = results.multi_handedness[i].classification[0].label
@@ -62,8 +68,11 @@ while cap.isOpened():
         
         sequence_queue.append(right_hand + left_hand)
     else:
-        sequence_queue.clear()
-        current_word = "..."
+        if len(sequence_queue) > 0:
+            sequence_queue.clear()
+            current_word = "..."
+            # Inform engine hands are down
+            engine.process_prediction([], 0)
 
     if len(sequence_queue) == SEQUENCE_LENGTH:
         input_data = np.array(sequence_queue, dtype=np.float32)
@@ -72,19 +81,42 @@ while cap.isOpened():
         with torch.no_grad():
             outputs = model(input_tensor)
             probabilities = torch.nn.functional.softmax(outputs, dim=1)[0]
-            conf, idx = torch.max(probabilities, 0)
             
-            current_word = label_encoder.inverse_transform([idx.item()])[0]
-            current_confidence = conf.item()
+            topk_probs, topk_indices = torch.topk(probabilities, 3)
+            
+            # Prepare predictions for the engine
+            preds = []
+            for i in range(3):
+                word = label_encoder.inverse_transform([topk_indices[i].item()])[0]
+                conf = topk_probs[i].item()
+                preds.append((word, conf))
+            
+            # Update Sentence Engine
+            new_word = engine.process_prediction(preds, hand_count)
+            
+            current_word = preds[0][0]
+            current_confidence = preds[0][1]
+            full_sentence = engine.get_sentence_text()
 
     # HUD
-    cv2.rectangle(frame, (0, 0), (450, 60), (20, 50, 20), -1)
-    color = (0, 255, 0) if current_confidence > CONFIDENCE_THRESHOLD else (150, 150, 150)
+    h, w, _ = frame.shape
+    # Top Bar
+    cv2.rectangle(frame, (0, 0), (w, 60), (30, 30, 30), -1)
     display_name = current_word.replace('1', '')
-    cv2.putText(frame, f"SIGN: {display_name.upper()}", (20, 40), cv2.FONT_HERSHEY_DUPLEX, 1.0, color, 2)
+    cv2.putText(frame, f"SIGN: {display_name.upper()}", (20, 40), cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 255, 0), 2)
     
-    cv2.imshow('ASL Signs ONLY', frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'): break
+    # Bottom Sentence Bar
+    cv2.rectangle(frame, (0, h-60), (w, h), (20, 20, 20), -1)
+    cv2.putText(frame, f"SENTENCE: {full_sentence}", (20, h-20), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+    
+    cv2.imshow('ASL Sentence Builder', frame)
+    
+    key = cv2.waitKey(1) & 0xFF
+    if key == ord('q'): break
+    elif key == ord('r'): engine.reset()
+
+cap.release()
+cv2.destroyAllWindows()
 
 cap.release()
 cv2.destroyAllWindows()
