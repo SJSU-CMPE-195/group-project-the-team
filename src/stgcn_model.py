@@ -104,3 +104,22 @@ class SignLanguageSTGCN(nn.Module):
         x = x.flatten(1) # (batch, 42 * 128)
         
         return self.fc(x)
+
+class SingleHandSTGCN(nn.Module):
+    def __init__(self, num_classes):
+        super(SingleHandSTGCN, self).__init__()
+        # Input: (batch, 30, 63)
+        self.layer1 = nn.Sequential(
+            nn.Linear(63, 128),
+            nn.ReLU(),
+            nn.Dropout(0.2)
+        )
+        self.lstm = nn.LSTM(128, 256, batch_first=True, bidirectional=True)
+        self.fc = nn.Linear(512, num_classes)
+
+    def forward(self, x):
+        x = self.layer1(x)
+        x, _ = self.lstm(x)
+        x = x[:, -1, :] # Take last frame
+        x = self.fc(x)
+        return x
