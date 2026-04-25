@@ -91,25 +91,38 @@ while cap.isOpened():
                 conf = topk_probs[i].item()
                 preds.append((word, conf))
             
-            # Update Sentence Engine
-            new_word = engine.process_prediction(preds, hand_count)
+            # Update Sentence Engine (Now with Energy Logic)
+            candidate, energy_ratio, committed = engine.process_prediction(preds, hand_count)
             
-            current_word = preds[0][0]
-            current_confidence = preds[0][1]
+            current_word = candidate if candidate else "..."
+            current_confidence = energy_ratio # Use energy for the bar
             full_sentence = engine.get_sentence_text()
 
-    # HUD
+    # --- ADVANCED HUD ---
     h, w, _ = frame.shape
-    # Top Bar
-    cv2.rectangle(frame, (0, 0), (w, 60), (30, 30, 30), -1)
+    # Dynamic Colors
+    accent_color = (0, 255, 127) if current_confidence >= 1.0 else (0, 200, 255)
+    
+    # Bottom Sentence Bar (Premium Dark Mode)
+    cv2.rectangle(frame, (0, h-80), (w, h), (15, 15, 15), -1)
+    cv2.putText(frame, f"TRANSLATION: {full_sentence}", (20, h-30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 255), 2)
+    
+    # Top Status Bar
+    cv2.rectangle(frame, (0, 0), (w, 80), (25, 25, 25), -1)
     display_name = current_word.replace('1', '')
-    cv2.putText(frame, f"SIGN: {display_name.upper()}", (20, 40), cv2.FONT_HERSHEY_DUPLEX, 1.0, (0, 255, 0), 2)
     
-    # Bottom Sentence Bar
-    cv2.rectangle(frame, (0, h-60), (w, h), (20, 20, 20), -1)
-    cv2.putText(frame, f"SENTENCE: {full_sentence}", (20, h-20), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
+    # Candidate Word (Yellow if charging, Green if locked)
+    label_status = "HOLDING..." if current_confidence < 1.0 and current_word != "..." else "LOCKED"
+    cv2.putText(frame, f"{display_name.upper()}", (20, 55), cv2.FONT_HERSHEY_DUPLEX, 1.3, accent_color, 2)
+    cv2.putText(frame, label_status, (w - 180, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (150, 150, 150), 1)
+
+    # ENERGY COMMITMENT BAR (Progress bar for the current sign)
+    bar_width = 300
+    bar_x, bar_y = 20, 65
+    cv2.rectangle(frame, (bar_x, bar_y), (bar_x + bar_width, bar_y + 8), (50, 50, 50), -1)
+    cv2.rectangle(frame, (bar_x, bar_y), (bar_x + int(bar_width * current_confidence), bar_y + 8), accent_color, -1)
     
-    cv2.imshow('ASL Sentence Builder', frame)
+    cv2.imshow('Pro-Level ASL Translator', frame)
     
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'): break
