@@ -11,11 +11,14 @@ from stgcn_model import SignLanguageSTGCN
 
 # --- Configuration ---
 DATA_DIR = 'data/processed'
-X_PATH = os.path.join(DATA_DIR, 'X_wlasl10.npy')
-Y_PATH = os.path.join(DATA_DIR, 'y_wlasl10.npy')
+# Choose dataset: 'wlasl10' or 'citizen10'
+DATASET_TYPE = 'citizen10' 
+
+X_PATH = os.path.join(DATA_DIR, f'X_{DATASET_TYPE}.npy')
+Y_PATH = os.path.join(DATA_DIR, f'y_{DATASET_TYPE}.npy')
 MODELS_DIR = 'models'
-MODEL_SAVE_PATH = os.path.join(MODELS_DIR, 'wlasl10_stgcn.pth')
-ENCODER_SAVE_PATH = os.path.join(MODELS_DIR, 'label_encoder.pkl')
+MODEL_SAVE_PATH = os.path.join(MODELS_DIR, f'{DATASET_TYPE}_stgcn.pth')
+ENCODER_SAVE_PATH = os.path.join(MODELS_DIR, f'label_encoder_{DATASET_TYPE}.pkl')
 
 BATCH_SIZE = 32
 EPOCHS = 100
@@ -25,9 +28,13 @@ LEARNING_RATE = 0.001
 X = np.load(X_PATH)
 y_str = np.load(Y_PATH)
 
-with open(ENCODER_SAVE_PATH, 'rb') as f:
-    label_encoder = pickle.load(f)
-y_encoded = label_encoder.transform(y_str)
+# Create and fit a new LabelEncoder for the new word set
+label_encoder = LabelEncoder()
+y_encoded = label_encoder.fit_transform(y_str)
+
+with open(ENCODER_SAVE_PATH, 'wb') as f:
+    pickle.dump(label_encoder, f)
+
 
 X_tensor = torch.tensor(X, dtype=torch.float32)
 y_tensor = torch.tensor(y_encoded, dtype=torch.long)
