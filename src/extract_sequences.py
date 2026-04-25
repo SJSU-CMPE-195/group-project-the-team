@@ -11,9 +11,9 @@ warnings.simplefilter('ignore')
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 # 1. Configuration
-TARGET_WORDS = ["hello", "help", "thank you", "yes", "no", "please", "sorry", "hurt", "eat", "water"]
+TARGET_WORDS = ["before", "thin", "cool", "drink", "go", "computer", "who", "cousin", "help", "candy"]
 FRAMES_PER_VIDEO = 30
-FEATURES_PER_FRAME = 63 # 21 points * 3 (x,y,z)
+FEATURES_PER_FRAME = 126 # (21 points * 3) * 2 hands
 
 DATA_DIR = 'data/WLASL'
 JSON_PATH = os.path.join(DATA_DIR, 'WLASL_v0.3.json')
@@ -21,7 +21,8 @@ VIDEO_DIR = os.path.join(DATA_DIR, 'videos')
 
 # 2. Setup MediaPipe
 mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(static_image_mode=False, max_num_hands=1, min_detection_confidence=0.5)
+# Increased max_num_hands to 2
+hands = mp_hands.Hands(static_image_mode=False, max_num_hands=2, min_detection_confidence=0.5)
 
 # 3. Load the JSON map to find our videos
 with open(JSON_PATH, 'r') as f:
@@ -45,7 +46,7 @@ for video_id, word in tqdm(video_map.items()):
     video_path = os.path.join(VIDEO_DIR, f"{video_id}.mp4")
     
     if not os.path.exists(video_path):
-        continue # Skip if video is missing from Kaggle dataset
+        continue
         
     cap = cv2.VideoCapture(video_path)
     frames_data = []
@@ -58,19 +59,28 @@ for video_id, word in tqdm(video_map.items()):
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = hands.process(frame_rgb)
         
-        # Extract landmarks if a hand is found
-        if results.multi_hand_landmarks:
-            hand_landmarks = results.multi_hand_landmarks[0]
-            
-            # Normalize to wrist (point 0)
-            wrist = hand_landmarks.landmark[0]
-            frame_coords = []
-            for lm in hand_landmarks.landmark:
-                frame_coords.extend([lm.x - wrist.x, lm.y - wrist.y, lm.z - wrist.z])
-            frames_data.append(frame_coords)
-        else:
-            # If no hand found in this frame, append zeros to keep sequence intact
-            frames_data.append(np.zeros(FEATURES_PER_FRAME).tolist())
+        # Initialize both hands as zeros
+        right_hand_coords = [0] * 63
+        left_hand_coords = [0] * 63
+        
+        if results.multi_hand_landmarks and results.multi_handedness:
+            for i, hand_landmarks in enumerate(results.multi_hand_landmarks):
+                # Identify if this hand is Left or Right
+                label = results.multi_handedness[i].classification[0].label # "Left" or "Right"
+                
+                # Normalize to wrist
+                wrist = hand_landmarks.landmark[0]
+                coords = []
+                for lm in hand_landmarks.landmark:
+                    coords.extend([lm.x - wrist.x, lm.y - wrist.y, lm.z - wrist.z])
+                
+                if label == 'Right':
+                    right_hand_coords = coords
+                else:
+                    left_hand_coords = coords
+        
+        # Combine: Right (0-62) and Left (63-125)
+        frames_data.append(right_hand_coords + left_hand_coords)
             
     cap.release()
     
