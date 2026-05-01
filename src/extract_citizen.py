@@ -7,7 +7,11 @@ from tqdm import tqdm
 import warnings
 
 # Configuration
-TARGET_WORDS = ["MOVIE1", "EAT1", "NIGHT1", "FINE1", "DEAF1", "HOSPITAL1", "PARTY1", "CHRISTMAS1", "BASKETBALL1", "DOG1", "MY", "NAME"]
+TARGET_WORDS = [
+    "MOVIE1", "EAT1", "NIGHT1", "FINE1", "DEAF1", "HOSPITAL1", 
+    "PARTY1", "CHRISTMAS1", "BASKETBALL1", "DOG1", "MY", "NAME",
+    "HELLO", "PLEASE", "THANKYOU", "ME", "YOU", "GOOD", "BAD", "HAPPY"
+]
 FRAMES_PER_VIDEO = 30
 FEATURES_PER_FRAME = 126
 
@@ -91,8 +95,8 @@ def process_dataset():
     y = np.array(y)
     
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    np.save(os.path.join(OUTPUT_DIR, 'X_citizen10.npy'), X)
-    np.save(os.path.join(OUTPUT_DIR, 'y_citizen10.npy'), y)
+    np.save(os.path.join(OUTPUT_DIR, 'X_citizen20.npy'), X)
+    np.save(os.path.join(OUTPUT_DIR, 'y_citizen20.npy'), y)
     print(f"\nSaved {len(X)} samples to {OUTPUT_DIR}")
 
 if __name__ == "__main__":

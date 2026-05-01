@@ -109,17 +109,15 @@ class SingleHandSTGCN(nn.Module):
     def __init__(self, num_classes):
         super(SingleHandSTGCN, self).__init__()
         # Input: (batch, 30, 63)
-        self.layer1 = nn.Sequential(
-            nn.Linear(63, 128),
+        self.fc = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(30 * 63, 512),
             nn.ReLU(),
-            nn.Dropout(0.2)
+            nn.Dropout(0.3),
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Linear(256, num_classes)
         )
-        self.lstm = nn.LSTM(128, 256, batch_first=True, bidirectional=True)
-        self.fc = nn.Linear(512, num_classes)
 
     def forward(self, x):
-        x = self.layer1(x)
-        x, _ = self.lstm(x)
-        x = x[:, -1, :] # Take last frame
-        x = self.fc(x)
-        return x
+        return self.fc(x)

@@ -12,7 +12,7 @@ from stgcn_model import SignLanguageSTGCN
 # --- Configuration ---
 DATA_DIR = 'data/processed'
 # Choose dataset: 'wlasl10' or 'citizen10'
-DATASET_TYPE = 'citizen10' 
+DATASET_TYPE = 'citizen20' 
 
 X_PATH = os.path.join(DATA_DIR, f'X_{DATASET_TYPE}.npy')
 Y_PATH = os.path.join(DATA_DIR, f'y_{DATASET_TYPE}.npy')
