@@ -139,23 +139,43 @@ def get_html_content() -> str:
       gap: 20px;
     }
 
-    /* Signer Camera Box (Image 1 Left Top) */
+    /* Signer Camera Box (Full-Height Left Column) */
+    .bridge-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+      align-items: stretch;
+      min-height: 620px;
+    }
+    @media (max-width: 1024px) {
+      .bridge-grid {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+    }
+    .bridge-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      height: 100%;
+    }
     .cam-card {
       background: var(--dark-cam);
       border-radius: 16px;
-      height: 380px;
+      height: 620px;
       position: relative;
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--border);
     }
     .cam-badge {
       position: absolute;
       top: 14px;
       left: 14px;
-      background: rgba(12, 21, 36, 0.85);
+      background: rgba(12, 21, 36, 0.88);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(255, 255, 255, 0.12);
       color: #ffffff;
@@ -175,10 +195,6 @@ def get_html_content() -> str:
       border-radius: 50%;
       box-shadow: 0 0 8px var(--accent-cyan);
       animation: pulse 1.8s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.85); }
     }
     .cam-btn-group {
       position: absolute;
@@ -222,14 +238,16 @@ def get_html_content() -> str:
       bottom: 16px;
       left: 16px;
       right: 16px;
-      background: #ffffff;
-      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-radius: 14px;
       padding: 14px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
       z-index: 10;
+      border: 1px solid rgba(226, 232, 240, 0.8);
     }
     .rec-label {
       font-size: 0.7rem;
@@ -244,6 +262,12 @@ def get_html_content() -> str:
       color: #0b1e33;
       letter-spacing: -0.5px;
       margin-top: 2px;
+    }
+    .rec-sub-status {
+      font-size: 0.74rem;
+      color: #64748b;
+      margin-top: 2px;
+      font-weight: 500;
     }
     .rec-conf-col {
       display: flex;
@@ -275,96 +299,9 @@ def get_html_content() -> str:
     .conf-bar-fill {
       height: 100%;
       background: var(--teal-primary);
-      width: 91%;
+      width: 0%;
       border-radius: 9999px;
-      transition: width 0.3s ease;
-    }
-
-    /* English Speech Box (Image 1 Left Bottom) */
-    .card-english {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 22px 26px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-    }
-    .card-english h3 {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
-    }
-    .card-english .eng-text {
-      font-size: 1.7rem;
-      font-weight: 800;
-      color: var(--text-main);
-      letter-spacing: -0.5px;
-      margin-bottom: 4px;
-    }
-    .card-english .eng-sub {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-    }
-    .btn-teal {
-      background: var(--teal-primary);
-      color: #ffffff;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 10px;
-      font-size: 0.92rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn-teal:hover {
-      background: var(--teal-hover);
-    }
-
-    /* Quick Sign Chips */
-    .quick-chips-box {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .quick-chips-title {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .chips-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .sign-chip {
-      background: #f1f5f9;
-      color: var(--text-main);
-      font-size: 0.8rem;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      border: 1px solid var(--border);
-      transition: all 0.2s;
-    }
-    .sign-chip:hover {
-      background: var(--teal-light);
-      color: var(--teal-primary);
-      border-color: var(--teal-primary);
+      transition: width 0.2s ease;
     }
 
     /* --- TWO-WAY LIVE BRIDGE INTERACTIVE CONVERSATION --- */
@@ -372,197 +309,12 @@ def get_html_content() -> str:
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 18px 20px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      height: 410px;
-    }
-    .scenario-nav {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      flex-wrap: wrap;
-    }
-    .scenario-chip {
-      background: #f1f5f9;
-      color: #334155;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid #e2e8f0;
-      transition: all 0.15s;
-    }
-    .scenario-chip:hover {
-      background: #e2e8f0;
-      color: #0f172a;
-      border-color: #cbd5e1;
-    }
-    /* Deaf Signer Message Bubble */
-    .convo-msg-deaf {
-      align-self: flex-start;
-      width: 92%;
-      background: #f0fdfa;
-      border: 1px solid #ccfbf1;
-      border-left: 4px solid var(--teal-primary);
-      border-radius: 12px;
-      padding: 11px 15px;
-      animation: fadeIn 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-    .msg-header-deaf {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-    }
-    .badge-deaf {
-      font-size: 0.68rem;
-      font-weight: 700;
-      color: #0f766e;
-      background: #ccfbf1;
-      padding: 2px 7px;
-      border-radius: 4px;
-      letter-spacing: 0.3px;
-    }
-    .msg-time {
-      font-size: 0.68rem;
-      color: var(--text-muted);
-    }
-    .bubble-text-deaf {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #0f172a;
-      line-height: 1.35;
-    }
-    .bubble-footer-deaf {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.72rem;
-      color: #0d9488;
-      font-weight: 600;
-    }
-    .btn-replay-voice {
-      cursor: pointer;
-      text-decoration: underline;
-    }
-    .btn-replay-voice:hover {
-      color: #0f766e;
-    }
-    /* Hearing Partner Message Bubble */
-    .convo-msg-hearing {
-      align-self: flex-end;
-      width: 92%;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-right: 4px solid #6366f1;
-      border-radius: 12px;
-      padding: 11px 15px;
-      animation: fadeIn 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-    .msg-header-hearing {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-    }
-    .badge-hearing {
-      font-size: 0.68rem;
-      font-weight: 700;
-      color: #4338ca;
-      background: #e0e7ff;
-      padding: 2px 7px;
-      border-radius: 4px;
-      letter-spacing: 0.3px;
-    }
-    .bubble-text-hearing {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: #1e1b4b;
-      line-height: 1.35;
-    }
-    .bubble-footer-hearing {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.72rem;
-      color: #6366f1;
-      font-weight: 600;
-    }
-    /* Hearing Quick Chips */
-    .hearing-quick-chips {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
-    }
-    .hearing-chip-label {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      margin-right: 2px;
-    }
-    .hearing-chip {
-      background: #eef2ff;
-      color: #4338ca;
-      border: 1px solid #c7d2fe;
-      border-radius: 100px;
-      padding: 3px 10px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .hearing-chip:hover {
-      background: #e0e7ff;
-      border-color: #818cf8;
-      color: #312e81;
-    }
-    /* Deaf Custom Input Row */
-    .deaf-custom-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 10px;
-      align-items: center;
-    }
-    .deaf-custom-input {
-      flex: 1;
-      background: #f8fafc;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 7px 12px;
-      font-size: 0.8rem;
-      color: var(--text-main);
-      outline: none;
-    }
-    .deaf-custom-input:focus {
-      border-color: var(--teal-primary);
-      background: #fff;
-    }
-    .btn-deaf-send {
-      background: var(--teal-primary);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 7px 14px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.2s;
-    }
-    .btn-deaf-send:hover {
-      background: var(--teal-hover);
+      gap: 14px;
+      height: 620px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     }
     .convo-header-row {
       display: flex;
@@ -572,7 +324,7 @@ def get_html_content() -> str:
       border-bottom: 1px solid #f1f5f9;
     }
     .convo-header {
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       font-weight: 700;
       color: var(--text-muted);
       letter-spacing: 0.5px;
@@ -582,11 +334,21 @@ def get_html_content() -> str:
       gap: 8px;
     }
     .convo-header .live-dot {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: #10b981;
       display: inline-block;
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+      animation: pulseDot 2s infinite;
+    }
+    .live-indicator-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #0f766e;
+      background: #ccfbf1;
+      padding: 3px 9px;
+      border-radius: 6px;
     }
     .btn-clear-transcript {
       background: transparent;
@@ -611,101 +373,125 @@ def get_html_content() -> str:
       gap: 12px;
       padding-right: 6px;
     }
-    .transcript-entry {
+    .convo-msg-system {
       background: #f8fafc;
-      border: 1px solid var(--border);
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.82rem;
+      color: #64748b;
+      line-height: 1.45;
+      text-align: center;
+    }
+    /* Deaf Signer Message Bubble */
+    .convo-msg-deaf {
+      align-self: flex-start;
+      width: 90%;
+      background: #f0fdfa;
+      border: 1px solid #ccfbf1;
       border-left: 4px solid var(--teal-primary);
       border-radius: 12px;
-      padding: 14px 18px;
+      padding: 12px 16px;
       animation: fadeIn 0.3s ease;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .transcript-meta {
+    .msg-header-deaf {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
     }
-    .transcript-badge {
-      font-size: 0.72rem;
+    .badge-deaf {
+      font-size: 0.7rem;
       font-weight: 700;
-      color: var(--teal-primary);
-      background: var(--teal-light);
-      padding: 3px 8px;
+      color: #0f766e;
+      background: #ccfbf1;
+      padding: 2px 7px;
       border-radius: 4px;
       letter-spacing: 0.3px;
     }
-    .transcript-time {
-      font-size: 0.72rem;
+    .msg-time {
+      font-size: 0.7rem;
       color: var(--text-muted);
     }
-    .transcript-bubble {
-      font-size: 1.12rem;
+    .bubble-text-deaf {
+      font-size: 1.15rem;
       font-weight: 700;
       color: #0f172a;
-      line-height: 1.4;
+      line-height: 1.35;
     }
-
-    /* Avatar Signing Box (Image 1 Right Center) */
-    .avatar-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
+    .bubble-footer-deaf {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: #0d9488;
+      font-weight: 600;
+    }
+    .btn-replay-voice {
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    /* Hearing Partner Message Bubble */
+    .convo-msg-hearing {
+      align-self: flex-end;
+      width: 90%;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-right: 4px solid #6366f1;
+      border-radius: 12px;
+      padding: 12px 16px;
+      animation: fadeIn 0.3s ease;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      min-height: 200px;
+      gap: 5px;
     }
-    .avatar-header {
+    .msg-header-hearing {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
     }
-    .avatar-title {
-      font-size: 0.75rem;
+    .badge-hearing {
+      font-size: 0.7rem;
       font-weight: 700;
-      color: var(--text-muted);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
+      color: #4338ca;
+      background: #e0e7ff;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.3px;
     }
-    .avatar-gloss {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--teal-primary);
+    .bubble-text-hearing {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #1e1b4b;
+      line-height: 1.35;
     }
-    .avatar-viewport {
-      background: #0c1524;
-      border-radius: 12px;
-      height: 160px;
-      position: relative;
-      overflow: hidden;
+    .bubble-footer-hearing {
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: #6366f1;
+      font-weight: 600;
     }
-    video#avatarVideo {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
+    /* Communication Input Bar (Hearing Partner or Signer) */
+    .bridge-input-section {
+      padding-top: 10px;
+      border-top: 1px solid #f1f5f9;
     }
-
-    /* Input Bar (Image 1 Right Bottom) */
     .input-bar {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       align-items: center;
     }
     .btn-mic {
       background: var(--teal-light);
       color: var(--teal-primary);
       border: none;
-      padding: 14px 20px;
+      padding: 12px 18px;
       border-radius: 12px;
       font-size: 0.92rem;
       font-weight: 600;
@@ -713,7 +499,7 @@ def get_html_content() -> str:
       display: flex;
       align-items: center;
       gap: 8px;
-      transition: background 0.2s;
+      transition: all 0.2s;
     }
     .btn-mic:hover {
       background: var(--teal-light-hover);
@@ -722,7 +508,7 @@ def get_html_content() -> str:
       flex: 1;
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 14px 18px;
+      padding: 12px 16px;
       font-size: 0.95rem;
       outline: none;
       transition: border-color 0.2s;
@@ -735,7 +521,7 @@ def get_html_content() -> str:
       background: var(--teal-primary);
       color: #ffffff;
       border: none;
-      padding: 14px 24px;
+      padding: 12px 22px;
       border-radius: 12px;
       font-size: 0.95rem;
       font-weight: 600;
@@ -746,7 +532,6 @@ def get_html_content() -> str:
       background: var(--teal-hover);
     }
 
-    
     /* Learn Mode Text Input for Dynamic Sentences */
     .learn-input-card {
       background: var(--card-bg);
@@ -1084,154 +869,76 @@ def get_html_content() -> str:
   </header>
 
   <div class="app-container">
-    <!-- ==================== TAB 1: BRIDGE MODE (IMAGE 1) ==================== -->
+    <!-- ==================== TAB 1: BRIDGE MODE (TWO-WAY LIVE TRANSLATION) ==================== -->
     <div id="tab-bridge" class="tab-content active">
       <div class="bridge-grid">
-        <!-- LEFT COLUMN: Signer Camera & Speech -->
+        <!-- LEFT COLUMN: Full-Height Live Signer Camera -->
         <div class="bridge-col">
-          <!-- Camera Box -->
           <div class="cam-card">
             <div class="cam-badge" id="camBadge">
               <span class="pulse-dot"></span>
-              <span id="camBadgeText">Camera on · hands tracked</span>
+              <span id="camBadgeText">Camera on · Ready to sign</span>
             </div>
             <div class="cam-btn-group">
-              <button id="captureSignBtn" class="cam-action-btn" style="background: rgba(13, 148, 136, 0.9); color: #fff; font-weight: 700;" onclick="captureLiveSign()" title="Trigger recognized sign from current camera gesture or spacebar">✋ Capture Sign</button>
-              <button id="camToggleBtn" class="cam-action-btn" onclick="toggleWebcam()">Start Camera</button>
+              <button id="ttsToggleBtn" class="cam-action-btn" onclick="toggleTTS()" title="Toggle voice output aloud">🔊 Voice Out: ON</button>
+              <button id="camToggleBtn" class="cam-action-btn" onclick="toggleWebcam()">Stop Camera</button>
             </div>
             
             <video id="webcamVideo" autoplay playsinline muted></video>
             <canvas id="camCanvas"></canvas>
 
-            <!-- Bottom Recognized Overlay -->
+            <!-- Bottom Live Recognition HUD -->
             <div class="recognized-overlay">
               <div>
-                <div class="rec-label">RECOGNIZED SIGN</div>
-                <div class="rec-gloss" id="bridgeGloss">HOW-ARE-YOU</div>
+                <div class="rec-label">RECOGNIZED ASL SIGN</div>
+                <div class="rec-gloss" id="bridgeGloss">Ready to Sign</div>
+                <div class="rec-sub-status" id="bridgeStatusMsg">Hold gesture steady in frame · Translates basic words & alphabet</div>
               </div>
               <div class="rec-conf-col">
                 <div class="conf-row">
                   <span class="conf-title">Confidence</span>
-                  <span class="conf-val" id="bridgeConfVal">91%</span>
+                  <span class="conf-val" id="bridgeConfVal">--</span>
                 </div>
                 <div class="conf-bar-bg">
-                  <div class="conf-bar-fill" id="bridgeConfBar" style="width: 91%;"></div>
+                  <div class="conf-bar-fill" id="bridgeConfBar" style="width: 0%;"></div>
                 </div>
               </div>
-            </div>
-          </div>
-
-          <!-- English Speech Card -->
-          <div class="card-english">
-            <div>
-              <h3>ENGLISH</h3>
-              <div class="eng-text" id="bridgeEnglish">How are you?</div>
-              <div class="eng-sub">Spoken aloud · Matches a taught sign</div>
-            </div>
-            <button class="btn-teal" onclick="speakCurrentSign()">Speak again</button>
-          </div>
-
-          <!-- Quick Sign Simulator / Presets -->
-          <div class="quick-chips-box">
-            <div class="quick-chips-title">
-              <span>Sign Vocabulary & Quick Triggers</span>
-              <span style="font-weight: 500; font-size: 0.7rem; color: var(--teal-primary);">Camera or Click</span>
-            </div>
-            <div class="chips-row">
-              <span class="sign-chip" onclick="triggerRecognizedSign('HOW-ARE-YOU')">HOW-ARE-YOU</span>
-              <span class="sign-chip" onclick="triggerRecognizedSign('HELLO')">HELLO</span>
-              <span class="sign-chip" onclick="triggerRecognizedSign('MY-NAME')">MY-NAME</span>
-              <span class="sign-chip" onclick="triggerRecognizedSign('WHAT-IS-YOUR-NAME')">WHAT-IS-YOUR-NAME</span>
-              <span class="sign-chip" onclick="triggerRecognizedSign('NICE-MEET-YOU')">NICE-MEET-YOU</span>
-              <span class="sign-chip" onclick="triggerRecognizedSign('THANK-YOU')">THANK-YOU</span>
-              <span class="sign-chip" onclick="triggerRecognizedSign('PLEASE')">PLEASE</span>
-              <span class="sign-chip" onclick="triggerRecognizedSign('DEAF')">DEAF</span>
-              <span class="sign-chip" onclick="triggerRecognizedSign('FINE')">FINE</span>
-              <span class="sign-chip" onclick="triggerRecognizedSign('HELP')">HELP</span>
-            </div>
-            <!-- Custom Deaf Signer Input for Demo Reliability -->
-            <div class="deaf-custom-row">
-              <input type="text" id="deafCustomInput" class="deaf-custom-input" placeholder="Type custom ASL sign or sentence (e.g. 'My name is Aramish')..." onkeydown="if(event.key==='Enter') sendDeafCustomSign()">
-              <button class="btn-deaf-send" onclick="sendDeafCustomSign()">Send Sign 🤟</button>
             </div>
           </div>
         </div>
 
-        <!-- RIGHT COLUMN:        <!-- RIGHT COLUMN: Transcribed Text & Avatar Signing -->
+        <!-- RIGHT COLUMN: Live English Translation & Two-Way Conversation -->
         <div class="bridge-col">
-          <!-- Interactive Two-Way Conversation Dialogue -->
           <div class="convo-card">
             <div class="convo-header-row">
               <div class="convo-header">
                 <span class="live-dot"></span>
-                <span>LIVE TWO-WAY CONVERSATION</span>
+                <span>LIVE TRANSLATION & CONVERSATION</span>
               </div>
-              <div class="scenario-nav">
-                <span style="font-weight: 700; color: var(--text-muted); font-size: 0.68rem;">SCENARIOS:</span>
-                <span class="scenario-chip" onclick="playDemoScenario('greetings')" title="Play greetings demo exchange">🤝 Greetings</span>
-                <span class="scenario-chip" onclick="playDemoScenario('intro')" title="Play introduction demo exchange">👋 Intro</span>
-                <span class="scenario-chip" onclick="playDemoScenario('questions')" title="Play question demo exchange">❓ Questions</span>
-                <span class="scenario-chip" onclick="playDemoScenario('help')" title="Play assistance demo exchange">🆘 Help</span>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <span class="live-indicator-badge">Deaf Signer ⇄ Hearing Partner</span>
+                <button class="btn-clear-transcript" onclick="clearTranscript()">Clear Chat</button>
               </div>
-              <button class="btn-clear-transcript" onclick="clearTranscript()">Clear</button>
             </div>
+
+            <!-- Scrollable Conversation Feed -->
             <div class="convo-messages" id="convoMessages">
-              <div class="convo-msg-deaf">
-                <div class="msg-header-deaf">
-                  <span class="badge-deaf">🤟 DEAF SIGNER (ASL)</span>
-                  <span class="msg-time">Just now · 95% match</span>
-                </div>
-                <div class="bubble-text-deaf">"How are you?"</div>
-                <div class="bubble-footer-deaf">
-                  <span>Sign: [HOW-ARE-YOU]</span>
-                  <span>·</span>
-                  <span class="btn-replay-voice" onclick="speakText('How are you?')">🔊 Spoken aloud</span>
-                </div>
-              </div>
-
-              <div class="convo-msg-hearing">
-                <div class="msg-header-hearing">
-                  <span class="badge-hearing">🗣️ HEARING PARTNER (VOICE/TEXT)</span>
-                  <span class="msg-time">Just now</span>
-                </div>
-                <div class="bubble-text-hearing">"I'm doing well, thank you! What is your name?"</div>
-                <div class="bubble-footer-hearing">
-                  <span>⚡ Avatar signed: [I-AM-FINE] [YOUR-NAME-WHAT]</span>
-                </div>
+              <div class="convo-msg-system">
+                <span>👋 <b>Two-Way Bridge Active</b>: The camera tracks your ASL signs on the left and translates them to English text & voice below. The hearing partner can click <b>Mic</b> to speak or type a reply below!</span>
               </div>
             </div>
-          </div>
 
-          <!-- Avatar Signing Card -->
-          <div class="avatar-card">
-            <div class="avatar-header">
-              <div class="avatar-title">AVATAR SIGNING</div>
-              <div class="avatar-gloss" id="avatarGlossIndicator">HOW-ARE-YOU</div>
+            <!-- Hearing Partner / Speaker Communication Input -->
+            <div class="bridge-input-section">
+              <div class="input-bar">
+                <button class="btn-mic" id="hearingMicBtn" onclick="toggleMic()" title="Click to speak your message aloud">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                  <span id="micBtnText">Mic</span>
+                </button>
+                <input type="text" id="signerInput" class="input-signer" placeholder="Type your reply here (or click Mic to speak)..." onkeydown="if(event.key==='Enter') sendHearingMessage()">
+                <button class="btn-sign" onclick="sendHearingMessage()">Send</button>
+              </div>
             </div>
-            <div class="avatar-viewport">
-              <video id="avatarVideo" controls autoplay loop playsinline>
-                <source src="/static/videos/sign_a066814783.mp4" type="video/mp4">
-              </video>
-            </div>
-          </div>
-
-          <!-- Hearing Partner Quick Reply Chips -->
-          <div class="hearing-quick-chips">
-            <span class="hearing-chip-label">Hearing replies:</span>
-            <span class="hearing-chip" onclick="sendHearingQuickReply('I am doing great, thank you!')">I am doing great, thank you!</span>
-            <span class="hearing-chip" onclick="sendHearingQuickReply('Nice to meet you!')">Nice to meet you!</span>
-            <span class="hearing-chip" onclick="sendHearingQuickReply('My name is Sarah.')">My name is Sarah.</span>
-            <span class="hearing-chip" onclick="sendHearingQuickReply('Yes, how can I help you?')">Yes, how can I help you?</span>
-          </div>
-
-          <!-- English to Sign Language Input Bar (Hearing Partner) -->
-          <div class="input-bar">
-            <button class="btn-mic" onclick="toggleMic()" title="Click to speak your reply into microphone">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-              <span>Mic</span>
-            </button>
-            <input type="text" id="signerInput" class="input-signer" placeholder="Type English reply (or click Mic) to sign back to Deaf partner" onkeydown="if(event.key==='Enter') signIt()">
-            <button class="btn-sign" onclick="signIt()">Reply & Sign</button>
           </div>
         </div>
       </div>
@@ -1397,7 +1104,28 @@ def get_html_content() -> str:
       }
     }
 
-    // --- TWO-WAY CONVERSATION INTERACTIVE LOGIC ---
+    // --- TWO-WAY LIVE BRIDGE INTERACTIVE CONVERSATION LOGIC ---
+    let ttsVoiceEnabled = true;
+
+    function toggleTTS() {
+      ttsVoiceEnabled = !ttsVoiceEnabled;
+      const btn = document.getElementById("ttsToggleBtn");
+      if (btn) {
+        btn.innerText = ttsVoiceEnabled ? "🔊 Voice Out: ON" : "🔇 Voice Out: OFF";
+        btn.style.background = ttsVoiceEnabled ? "rgba(13, 105, 94, 0.9)" : "rgba(100, 116, 139, 0.85)";
+      }
+    }
+
+    function speakText(text) {
+      if (!ttsVoiceEnabled) return;
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.rate = 1.0;
+        window.speechSynthesis.speak(u);
+      }
+    }
+
     function appendDeafSignerMessage(gloss, englishText, confidence) {
       const convo = document.getElementById("convoMessages");
       if (!convo) return;
@@ -1423,25 +1151,27 @@ def get_html_content() -> str:
 
       convo.appendChild(entry);
       convo.scrollTop = convo.scrollHeight;
+
+      // Speak aloud in English for Hearing partner
+      speakText(englishText);
     }
 
-    function appendHearingPartnerMessage(englishText, glosses) {
+    function appendHearingPartnerMessage(text) {
       const convo = document.getElementById("convoMessages");
       if (!convo) return;
       const entry = document.createElement("div");
       entry.className = "convo-msg-hearing";
 
       const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      const glossTag = (glosses && glosses.length) ? ("[" + glosses.join("] [") + "]") : "ASL Translated";
 
       entry.innerHTML = `
         <div class="msg-header-hearing">
           <span class="badge-hearing">🗣️ HEARING PARTNER (VOICE/TEXT)</span>
           <span class="msg-time">${timeStr}</span>
         </div>
-        <div class="bubble-text-hearing">"${englishText}"</div>
+        <div class="bubble-text-hearing">"${text}"</div>
         <div class="bubble-footer-hearing">
-          <span>⚡ Avatar signed: ${glossTag}</span>
+          <span>Displayed on screen for Deaf Signer</span>
         </div>
       `;
 
@@ -1449,184 +1179,50 @@ def get_html_content() -> str:
       convo.scrollTop = convo.scrollHeight;
     }
 
+    function sendHearingMessage() {
+      const input = document.getElementById("signerInput");
+      const text = input ? input.value.trim() : "";
+      if (!text) return;
+      input.value = "";
+      appendHearingPartnerMessage(text);
+    }
+
+    function toggleMic() {
+      const btnText = document.getElementById("micBtnText");
+      if ("webkitSpeechRecognition" in window || "SpeechRecognition" in window) {
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const rec = new SpeechRec();
+        rec.lang = "en-US";
+        if (btnText) btnText.innerText = "Listening...";
+        rec.onresult = (e) => {
+          const spoken = e.results[0][0].transcript;
+          if (btnText) btnText.innerText = "Mic";
+          if (spoken && spoken.trim()) {
+            appendHearingPartnerMessage(spoken.trim());
+          }
+        };
+        rec.onerror = () => {
+          if (btnText) btnText.innerText = "Mic";
+        };
+        rec.onend = () => {
+          if (btnText) btnText.innerText = "Mic";
+        };
+        rec.start();
+      } else {
+        alert("Microphone speech recognition requires Chrome or Edge browser.");
+      }
+    }
+
     function clearTranscript() {
       const convo = document.getElementById("convoMessages");
       if (convo) {
         convo.innerHTML = `
-          <div style="color: var(--text-muted); font-size: 0.88rem; text-align: center; padding: 40px 20px;">
-            Conversation active. Sign in front of camera or speak/type below to converse in real-time.
+          <div class="convo-msg-system">
+            <span>👋 <b>Chat cleared</b>. The camera tracks your ASL signs on the left and translates them to English text & voice below. The hearing partner can click <b>Mic</b> to speak or type a reply below!</span>
           </div>
         `;
       }
     }
-
-    // --- SIGN DETECTION & RECOGNITION (DEAF SIGNER) ---
-    function triggerRecognizedSign(gloss) {
-      fetch("/api/recognize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gloss: gloss })
-      })
-      .then(r => r.json())
-      .then(data => {
-        document.getElementById("bridgeGloss").innerText = data.gloss;
-        document.getElementById("bridgeConfVal").innerText = data.confidence + "%";
-        document.getElementById("bridgeConfBar").style.width = data.confidence + "%";
-        document.getElementById("bridgeEnglish").innerText = data.english;
-
-        // Speak aloud via TTS so the hearing partner can hear it
-        speakText(data.english);
-
-        // Add Deaf Signer message to conversation dialogue
-        appendDeafSignerMessage(data.gloss, data.english, data.confidence);
-
-        // Update avatar video to match
-        currentSign = data.gloss;
-        synthesizeAvatarForGloss(data.gloss);
-      });
-    }
-
-    function captureLiveSign() {
-      const btn = document.getElementById("captureSignBtn");
-      if (btn) {
-        const oldText = btn.innerText;
-        btn.innerText = "✋ Captured!";
-        btn.style.background = "#059669";
-        setTimeout(() => {
-          btn.innerText = oldText;
-          btn.style.background = "rgba(13, 148, 136, 0.9)";
-        }, 800);
-      }
-      const gloss = currentSign || "HOW-ARE-YOU";
-      triggerRecognizedSign(gloss);
-    }
-
-    async function sendDeafCustomSign() {
-      const input = document.getElementById("deafCustomInput");
-      const text = input ? input.value.trim() : "";
-      if (!text) return;
-      input.value = "";
-
-      try {
-        const resp = await fetch("/api/synthesize?text=" + encodeURIComponent(text));
-        const data = await resp.json();
-        const gloss = data.glosses ? data.glosses.join("-") : text.toUpperCase();
-
-        document.getElementById("bridgeGloss").innerText = gloss;
-        document.getElementById("bridgeEnglish").innerText = text;
-        document.getElementById("bridgeConfVal").innerText = "96%";
-        document.getElementById("bridgeConfBar").style.width = "96%";
-
-        speakText(text);
-        appendDeafSignerMessage(gloss, text, 96);
-
-        if (data.video_url) {
-          const video = document.getElementById("avatarVideo");
-          video.src = data.video_url;
-          video.load();
-          video.play();
-          document.getElementById("avatarGlossIndicator").innerText = data.glosses.join(" ");
-        }
-      } catch (e) {
-        speakText(text);
-        appendDeafSignerMessage("CUSTOM-SIGN", text, 95);
-      }
-    }
-
-    function speakCurrentSign() {
-      const text = document.getElementById("bridgeEnglish").innerText;
-      speakText(text);
-    }
-
-    function speakText(text) {
-      if ("speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.rate = 1.0;
-        window.speechSynthesis.speak(u);
-      }
-    }
-
-    // --- SIGN SYNTHESIS FOR AVATAR CARD (HEARING PARTNER REPLY) ---
-    async function signIt() {
-      const input = document.getElementById("signerInput");
-      const text = input ? input.value.trim() : "";
-      if (!text) return;
-      input.value = "";
-
-      try {
-        const resp = await fetch("/api/synthesize?text=" + encodeURIComponent(text));
-        const data = await resp.json();
-        if (data.video_url) {
-          const video = document.getElementById("avatarVideo");
-          video.src = data.video_url;
-          video.load();
-          video.play();
-          document.getElementById("avatarGlossIndicator").innerText = data.glosses.join(" ");
-          appendHearingPartnerMessage(text, data.glosses);
-        } else {
-          appendHearingPartnerMessage(text, []);
-        }
-      } catch (err) {
-        console.error("Synthesis error:", err);
-        appendHearingPartnerMessage(text, []);
-      }
-    }
-
-    function sendHearingQuickReply(text) {
-      const input = document.getElementById("signerInput");
-      if (input) input.value = text;
-      signIt();
-    }
-
-    async function synthesizeAvatarForGloss(gloss) {
-      try {
-        const resp = await fetch("/api/synthesize?text=" + encodeURIComponent(gloss.replace(/-/g, " ")));
-        const data = await resp.json();
-        if (data.video_url) {
-          const video = document.getElementById("avatarVideo");
-          video.src = data.video_url;
-          video.load();
-          video.play();
-          document.getElementById("avatarGlossIndicator").innerText = gloss;
-        }
-      } catch (e) {}
-    }
-
-    // --- DEMO SCENARIO RUNNER ---
-    function playDemoScenario(scenarioKey) {
-      clearTranscript();
-
-      if (scenarioKey === "greetings") {
-        triggerRecognizedSign("HOW-ARE-YOU");
-        setTimeout(() => {
-          sendHearingQuickReply("I am doing great, thank you! How are you doing today?");
-        }, 1800);
-      } else if (scenarioKey === "intro") {
-        triggerRecognizedSign("MY-NAME");
-        setTimeout(() => {
-          sendHearingQuickReply("Nice to meet you! My name is Sarah.");
-        }, 1800);
-      } else if (scenarioKey === "questions") {
-        triggerRecognizedSign("WHAT-IS-YOUR-NAME");
-        setTimeout(() => {
-          sendHearingQuickReply("My name is Alex. Nice to meet you!");
-        }, 1800);
-      } else if (scenarioKey === "help") {
-        triggerRecognizedSign("HELP");
-        setTimeout(() => {
-          sendHearingQuickReply("Yes, of course! How can I help you today?");
-        }, 1800);
-      }
-    }
-
-    // Spacebar shortcut on Bridge tab to capture sign
-    document.addEventListener("keydown", (e) => {
-      if (e.code === "Space" && activeTab === "bridge" && e.target.tagName !== "INPUT") {
-        e.preventDefault();
-        captureLiveSign();
-      }
-    });
 
     // --- LEARN MODE LOGIC ---
     let currentCustomTarget = 'HOW-ARE-YOU';
@@ -2156,40 +1752,185 @@ def get_html_content() -> str:
       ctx.fill();
     }
 
-    // Gesture classifier from landmark spatial kinematics
-    function analyzeSignGesture(multiLandmarks) {
-      const now = Date.now();
-      if (now - lastGestureTime < 3000) return; // Debounce
+    // --- STABLE SIGN GESTURE CLASSIFIER WITH ENERGY ACCUMULATOR ---
+    let activeCandidate = null;
+    let candidateEnergy = 0;
+    const ENERGY_COMMIT_THRESHOLD = 5; // ~180-200ms of stable hold
+    const signCooldowns = {};
+    const COOLDOWN_MS = 2500;
 
-      const h1 = multiLandmarks[0];
+    function isFingerExtended(hand, tipIdx, pipIdx) {
+      return hand[tipIdx].y < hand[pipIdx].y;
+    }
+
+    function detectGestureFromFrame(multiLandmarks) {
+      if (!multiLandmarks || multiLandmarks.length === 0) return null;
       const numHands = multiLandmarks.length;
-      const wristY = h1[0].y;
-      const indexTipY = h1[8].y;
-      const thumbTipY = h1[4].y;
+      const h1 = multiLandmarks[0];
 
-      if (numHands === 2) {
+      // Fingertip extension flags for primary hand: [thumb, index, middle, ring, pinky]
+      const f1 = [
+        Math.hypot(h1[4].x - h1[2].x, h1[4].y - h1[2].y) > 0.08,
+        isFingerExtended(h1, 8, 6),
+        isFingerExtended(h1, 12, 10),
+        isFingerExtended(h1, 16, 14),
+        isFingerExtended(h1, 20, 18)
+      ];
+      const count1 = f1.filter(Boolean).length;
+      const wrist1 = h1[0];
+
+      // --- TWO-HANDED GESTURES ---
+      if (numHands >= 2) {
         const h2 = multiLandmarks[1];
-        const distWrists = Math.hypot(h1[0].x - h2[0].x, h1[0].y - h2[0].y);
-        if (distWrists < 0.28) {
-          triggerRecognizedSign('HOW-ARE-YOU');
-          lastGestureTime = now;
-          return;
+        const f2 = [
+          Math.hypot(h2[4].x - h2[2].x, h2[4].y - h2[2].y) > 0.08,
+          isFingerExtended(h2, 8, 6),
+          isFingerExtended(h2, 12, 10),
+          isFingerExtended(h2, 16, 14),
+          isFingerExtended(h2, 20, 18)
+        ];
+        const count2 = f2.filter(Boolean).length;
+        const wrist2 = h2[0];
+        const distWrists = Math.hypot(wrist1.x - wrist2.x, wrist1.y - wrist2.y);
+
+        // 1. HOW-ARE-YOU: Both hands open/cupped in front of chest
+        if (distWrists < 0.38 && wrist1.y > 0.38 && wrist2.y > 0.38 && count1 >= 3 && count2 >= 3) {
+          return { gloss: "HOW-ARE-YOU", english: "How are you?", conf: 96 };
+        }
+
+        // 2. MY-NAME: Two "H" shapes (index + middle) tapping or meeting
+        if (f1[1] && f1[2] && !f1[3] && !f1[4] && f2[1] && f2[2] && !f2[3] && !f2[4]) {
+          return { gloss: "MY-NAME", english: "My name is", conf: 94 };
+        }
+
+        // 3. NICE-MEET-YOU: Two index fingers meeting upright
+        if (f1[1] && !f1[2] && !f1[3] && !f1[4] && f2[1] && !f2[2] && !f2[3] && !f2[4]) {
+          const indexDist = Math.hypot(h1[8].x - h2[8].x, h1[8].y - h2[8].y);
+          if (indexDist < 0.25) {
+            return { gloss: "NICE-MEET-YOU", english: "Nice to meet you", conf: 95 };
+          }
+        }
+
+        // 4. HELP: One base palm flat below, one fist resting on top
+        if ((count1 >= 4 && count2 <= 1) || (count2 >= 4 && count1 <= 1)) {
+          return { gloss: "HELP", english: "Can you help me?", conf: 93 };
         }
       }
 
-      // Hand waving near upper area
-      if (wristY < 0.42 && indexTipY < 0.32) {
-        triggerRecognizedSign('HELLO');
-        lastGestureTime = now;
+      // --- SINGLE-HANDED GESTURES ---
+      // 5. HELLO: Open flat hand (4-5 fingers up) near temple / upper frame
+      if (wrist1.y < 0.44 && count1 >= 4 && h1[8].y < 0.35) {
+        return { gloss: "HELLO", english: "Hello!", conf: 95 };
+      }
+
+      // 6. THANK-YOU: Hand near chin (y between 0.30 and 0.50) with fingers extended
+      if (wrist1.y >= 0.28 && wrist1.y <= 0.52 && count1 >= 4 && Math.abs(wrist1.x - 0.5) < 0.28) {
+        return { gloss: "THANK-YOU", english: "Thank you!", conf: 94 };
+      }
+
+      // 7. FINE: Open 5 handshape with thumb on chest
+      if (wrist1.y >= 0.45 && wrist1.y <= 0.76 && count1 >= 4 && h1[4].x > h1[8].x - 0.12) {
+        return { gloss: "FINE", english: "I am doing fine", conf: 95 };
+      }
+
+      // 8. PLEASE: Open flat hand in middle chest
+      if (wrist1.y >= 0.48 && wrist1.y <= 0.78 && count1 >= 4 && Math.abs(wrist1.x - 0.5) < 0.22) {
+        return { gloss: "PLEASE", english: "Please", conf: 92 };
+      }
+
+      // 9. YES: Closed fist in chest/waist area
+      if (count1 === 0 && wrist1.y >= 0.40 && wrist1.y <= 0.75) {
+        return { gloss: "YES", english: "Yes", conf: 91 };
+      }
+
+      // 10. Fingerspelling Alphabet Letters:
+      // Letter "L": Index up, thumb out, other 3 down
+      if (f1[1] && f1[0] && !f1[2] && !f1[3] && !f1[4]) {
+        return { gloss: "FS_L", english: "L", conf: 95 };
+      }
+      // Letter "V": Index up, middle up, other 2 down
+      if (f1[1] && f1[2] && !f1[3] && !f1[4] && !f1[0]) {
+        return { gloss: "FS_V", english: "V", conf: 94 };
+      }
+      // Letter "B": 4 fingers up, thumb tucked
+      if (f1[1] && f1[2] && f1[3] && f1[4] && !f1[0] && wrist1.y > 0.45) {
+        return { gloss: "FS_B", english: "B", conf: 94 };
+      }
+      // Letter "Y": Thumb & pinky out, middle 3 curled
+      if (f1[0] && !f1[1] && !f1[2] && !f1[3] && f1[4]) {
+        return { gloss: "FS_Y", english: "Y", conf: 95 };
+      }
+      // Letter "I": Pinky up, all others curled
+      if (!f1[0] && !f1[1] && !f1[2] && !f1[3] && f1[4]) {
+        return { gloss: "FS_I", english: "I", conf: 93 };
+      }
+
+      return null;
+    }
+
+    function analyzeSignGesture(multiLandmarks) {
+      const now = Date.now();
+      const detected = detectGestureFromFrame(multiLandmarks);
+
+      const glossEl = document.getElementById("bridgeGloss");
+      const statusEl = document.getElementById("bridgeStatusMsg");
+      const confValEl = document.getElementById("bridgeConfVal");
+      const confBarEl = document.getElementById("bridgeConfBar");
+
+      if (!detected) {
+        // Decay energy smoothly
+        candidateEnergy = Math.max(0, candidateEnergy - 1);
+        if (candidateEnergy === 0) {
+          activeCandidate = null;
+          if (confBarEl) confBarEl.style.width = "0%";
+          if (confValEl) confValEl.innerText = "--";
+          if (statusEl) statusEl.innerText = "Camera tracking hands · Hold gesture steady to translate";
+        }
         return;
       }
 
-      // Hand resting near chest
-      if (wristY >= 0.45 && wristY <= 0.75 && thumbTipY < indexTipY) {
-        triggerRecognizedSign('FINE');
-        lastGestureTime = now;
+      // Check cooldown for committed sign
+      if (signCooldowns[detected.gloss] && (now - signCooldowns[detected.gloss] < COOLDOWN_MS)) {
         return;
       }
+
+      // Accumulate energy
+      if (activeCandidate && activeCandidate.gloss === detected.gloss) {
+        candidateEnergy++;
+      } else {
+        activeCandidate = detected;
+        candidateEnergy = 1;
+      }
+
+      // Update HUD progress while holding
+      const ratio = Math.min(1.0, candidateEnergy / ENERGY_COMMIT_THRESHOLD);
+      if (confBarEl) confBarEl.style.width = (ratio * 100) + "%";
+      if (confValEl) confValEl.innerText = Math.round(ratio * detected.conf) + "%";
+      if (statusEl) statusEl.innerText = 'Translating "' + detected.english + '" (' + Math.round(ratio * 100) + '%)...';
+      if (glossEl) glossEl.innerText = detected.gloss;
+
+      // Commit when hold threshold is reached!
+      if (candidateEnergy >= ENERGY_COMMIT_THRESHOLD) {
+        commitSign(detected.gloss, detected.english, detected.conf);
+        signCooldowns[detected.gloss] = now;
+        candidateEnergy = 0;
+        activeCandidate = null;
+      }
+    }
+
+    function commitSign(gloss, english, conf) {
+      const glossEl = document.getElementById("bridgeGloss");
+      const statusEl = document.getElementById("bridgeStatusMsg");
+      const confValEl = document.getElementById("bridgeConfVal");
+      const confBarEl = document.getElementById("bridgeConfBar");
+
+      if (glossEl) glossEl.innerText = gloss;
+      if (statusEl) statusEl.innerText = '✓ Translated: "' + english + '"';
+      if (confValEl) confValEl.innerText = conf + "%";
+      if (confBarEl) confBarEl.style.width = "100%";
+
+      // Append to Two-Way Conversation
+      appendDeafSignerMessage(gloss, english, conf);
     }
 
     // Main Canvas Render Loop
