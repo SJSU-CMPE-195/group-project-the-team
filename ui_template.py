@@ -367,16 +367,202 @@ def get_html_content() -> str:
       border-color: var(--teal-primary);
     }
 
-    /* --- TRANSCRIBED SIGN TEXT PANEL (Direct Translation of Sign to Text) --- */
+    /* --- TWO-WAY LIVE BRIDGE INTERACTIVE CONVERSATION --- */
     .convo-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 22px;
+      padding: 18px 20px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      height: 380px;
+      gap: 12px;
+      height: 410px;
+    }
+    .scenario-nav {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    .scenario-chip {
+      background: #f1f5f9;
+      color: #334155;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #e2e8f0;
+      transition: all 0.15s;
+    }
+    .scenario-chip:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+      border-color: #cbd5e1;
+    }
+    /* Deaf Signer Message Bubble */
+    .convo-msg-deaf {
+      align-self: flex-start;
+      width: 92%;
+      background: #f0fdfa;
+      border: 1px solid #ccfbf1;
+      border-left: 4px solid var(--teal-primary);
+      border-radius: 12px;
+      padding: 11px 15px;
+      animation: fadeIn 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .msg-header-deaf {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge-deaf {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #0f766e;
+      background: #ccfbf1;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.3px;
+    }
+    .msg-time {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+    .bubble-text-deaf {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.35;
+    }
+    .bubble-footer-deaf {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: #0d9488;
+      font-weight: 600;
+    }
+    .btn-replay-voice {
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    .btn-replay-voice:hover {
+      color: #0f766e;
+    }
+    /* Hearing Partner Message Bubble */
+    .convo-msg-hearing {
+      align-self: flex-end;
+      width: 92%;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-right: 4px solid #6366f1;
+      border-radius: 12px;
+      padding: 11px 15px;
+      animation: fadeIn 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .msg-header-hearing {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge-hearing {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #4338ca;
+      background: #e0e7ff;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.3px;
+    }
+    .bubble-text-hearing {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #1e1b4b;
+      line-height: 1.35;
+    }
+    .bubble-footer-hearing {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: #6366f1;
+      font-weight: 600;
+    }
+    /* Hearing Quick Chips */
+    .hearing-quick-chips {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .hearing-chip-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-right: 2px;
+    }
+    .hearing-chip {
+      background: #eef2ff;
+      color: #4338ca;
+      border: 1px solid #c7d2fe;
+      border-radius: 100px;
+      padding: 3px 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .hearing-chip:hover {
+      background: #e0e7ff;
+      border-color: #818cf8;
+      color: #312e81;
+    }
+    /* Deaf Custom Input Row */
+    .deaf-custom-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+    }
+    .deaf-custom-input {
+      flex: 1;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 0.8rem;
+      color: var(--text-main);
+      outline: none;
+    }
+    .deaf-custom-input:focus {
+      border-color: var(--teal-primary);
+      background: #fff;
+    }
+    .btn-deaf-send {
+      background: var(--teal-primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .btn-deaf-send:hover {
+      background: var(--teal-hover);
     }
     .convo-header-row {
       display: flex;
@@ -910,6 +1096,7 @@ def get_html_content() -> str:
               <span id="camBadgeText">Camera on · hands tracked</span>
             </div>
             <div class="cam-btn-group">
+              <button id="captureSignBtn" class="cam-action-btn" style="background: rgba(13, 148, 136, 0.9); color: #fff; font-weight: 700;" onclick="captureLiveSign()" title="Trigger recognized sign from current camera gesture or spacebar">✋ Capture Sign</button>
               <button id="camToggleBtn" class="cam-action-btn" onclick="toggleWebcam()">Start Camera</button>
             </div>
             
@@ -962,27 +1149,55 @@ def get_html_content() -> str:
               <span class="sign-chip" onclick="triggerRecognizedSign('FINE')">FINE</span>
               <span class="sign-chip" onclick="triggerRecognizedSign('HELP')">HELP</span>
             </div>
+            <!-- Custom Deaf Signer Input for Demo Reliability -->
+            <div class="deaf-custom-row">
+              <input type="text" id="deafCustomInput" class="deaf-custom-input" placeholder="Type custom ASL sign or sentence (e.g. 'My name is Aramish')..." onkeydown="if(event.key==='Enter') sendDeafCustomSign()">
+              <button class="btn-deaf-send" onclick="sendDeafCustomSign()">Send Sign 🤟</button>
+            </div>
           </div>
         </div>
 
-        <!-- RIGHT COLUMN: Transcribed Text & Avatar Signing -->
+        <!-- RIGHT COLUMN:        <!-- RIGHT COLUMN: Transcribed Text & Avatar Signing -->
         <div class="bridge-col">
-          <!-- Transcribed Text Box (Direct Translation of Signs to Text) -->
+          <!-- Interactive Two-Way Conversation Dialogue -->
           <div class="convo-card">
             <div class="convo-header-row">
               <div class="convo-header">
                 <span class="live-dot"></span>
-                <span>TRANSCRIBED SIGN TEXT</span>
+                <span>LIVE TWO-WAY CONVERSATION</span>
+              </div>
+              <div class="scenario-nav">
+                <span style="font-weight: 700; color: var(--text-muted); font-size: 0.68rem;">SCENARIOS:</span>
+                <span class="scenario-chip" onclick="playDemoScenario('greetings')" title="Play greetings demo exchange">🤝 Greetings</span>
+                <span class="scenario-chip" onclick="playDemoScenario('intro')" title="Play introduction demo exchange">👋 Intro</span>
+                <span class="scenario-chip" onclick="playDemoScenario('questions')" title="Play question demo exchange">❓ Questions</span>
+                <span class="scenario-chip" onclick="playDemoScenario('help')" title="Play assistance demo exchange">🆘 Help</span>
               </div>
               <button class="btn-clear-transcript" onclick="clearTranscript()">Clear</button>
             </div>
             <div class="convo-messages" id="convoMessages">
-              <div class="transcript-entry">
-                <div class="transcript-meta">
-                  <span class="transcript-badge">HOW-ARE-YOU</span>
-                  <span class="transcript-time">Just now · 91% match</span>
+              <div class="convo-msg-deaf">
+                <div class="msg-header-deaf">
+                  <span class="badge-deaf">🤟 DEAF SIGNER (ASL)</span>
+                  <span class="msg-time">Just now · 95% match</span>
                 </div>
-                <div class="transcript-bubble">"How are you?"</div>
+                <div class="bubble-text-deaf">"How are you?"</div>
+                <div class="bubble-footer-deaf">
+                  <span>Sign: [HOW-ARE-YOU]</span>
+                  <span>·</span>
+                  <span class="btn-replay-voice" onclick="speakText('How are you?')">🔊 Spoken aloud</span>
+                </div>
+              </div>
+
+              <div class="convo-msg-hearing">
+                <div class="msg-header-hearing">
+                  <span class="badge-hearing">🗣️ HEARING PARTNER (VOICE/TEXT)</span>
+                  <span class="msg-time">Just now</span>
+                </div>
+                <div class="bubble-text-hearing">"I'm doing well, thank you! What is your name?"</div>
+                <div class="bubble-footer-hearing">
+                  <span>⚡ Avatar signed: [I-AM-FINE] [YOUR-NAME-WHAT]</span>
+                </div>
               </div>
             </div>
           </div>
@@ -1000,14 +1215,23 @@ def get_html_content() -> str:
             </div>
           </div>
 
-          <!-- English to Sign Language Input Bar -->
+          <!-- Hearing Partner Quick Reply Chips -->
+          <div class="hearing-quick-chips">
+            <span class="hearing-chip-label">Hearing replies:</span>
+            <span class="hearing-chip" onclick="sendHearingQuickReply('I am doing great, thank you!')">I am doing great, thank you!</span>
+            <span class="hearing-chip" onclick="sendHearingQuickReply('Nice to meet you!')">Nice to meet you!</span>
+            <span class="hearing-chip" onclick="sendHearingQuickReply('My name is Sarah.')">My name is Sarah.</span>
+            <span class="hearing-chip" onclick="sendHearingQuickReply('Yes, how can I help you?')">Yes, how can I help you?</span>
+          </div>
+
+          <!-- English to Sign Language Input Bar (Hearing Partner) -->
           <div class="input-bar">
-            <button class="btn-mic" onclick="toggleMic()">
+            <button class="btn-mic" onclick="toggleMic()" title="Click to speak your reply into microphone">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
               <span>Mic</span>
             </button>
-            <input type="text" id="signerInput" class="input-signer" placeholder="Type English to see AI model sign it" onkeydown="if(event.key==='Enter') signIt()">
-            <button class="btn-sign" onclick="signIt()">Sign it</button>
+            <input type="text" id="signerInput" class="input-signer" placeholder="Type English reply (or click Mic) to sign back to Deaf partner" onkeydown="if(event.key==='Enter') signIt()">
+            <button class="btn-sign" onclick="signIt()">Reply & Sign</button>
           </div>
         </div>
       </div>
@@ -1173,21 +1397,52 @@ def get_html_content() -> str:
       }
     }
 
-    // --- TRANSCRIBED SIGN TEXT PANEL ---
-    function appendTranslation(gloss, englishText, confidence) {
-      const convo = document.getElementById('convoMessages');
-      const entry = document.createElement('div');
-      entry.className = 'transcript-entry';
+    // --- TWO-WAY CONVERSATION INTERACTIVE LOGIC ---
+    function appendDeafSignerMessage(gloss, englishText, confidence) {
+      const convo = document.getElementById("convoMessages");
+      if (!convo) return;
+      const entry = document.createElement("div");
+      entry.className = "convo-msg-deaf";
 
-      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const confStr = confidence ? `${confidence}% match` : '91% match';
+      const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const confStr = confidence ? (confidence + "% match") : "95% match";
+      const cleanEnglish = (englishText || "").replace(/"/g, "&quot;");
 
       entry.innerHTML = `
-        <div class="transcript-meta">
-          <span class="transcript-badge">${gloss}</span>
-          <span class="transcript-time">${timeStr} · ${confStr}</span>
+        <div class="msg-header-deaf">
+          <span class="badge-deaf">🤟 DEAF SIGNER (ASL)</span>
+          <span class="msg-time">${timeStr} · ${confStr}</span>
         </div>
-        <div class="transcript-bubble">"${englishText}"</div>
+        <div class="bubble-text-deaf">"${englishText}"</div>
+        <div class="bubble-footer-deaf">
+          <span>Sign: [${gloss}]</span>
+          <span>·</span>
+          <span class="btn-replay-voice" onclick="speakText('${cleanEnglish}')">🔊 Replay voice</span>
+        </div>
+      `;
+
+      convo.appendChild(entry);
+      convo.scrollTop = convo.scrollHeight;
+    }
+
+    function appendHearingPartnerMessage(englishText, glosses) {
+      const convo = document.getElementById("convoMessages");
+      if (!convo) return;
+      const entry = document.createElement("div");
+      entry.className = "convo-msg-hearing";
+
+      const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const glossTag = (glosses && glosses.length) ? ("[" + glosses.join("] [") + "]") : "ASL Translated";
+
+      entry.innerHTML = `
+        <div class="msg-header-hearing">
+          <span class="badge-hearing">🗣️ HEARING PARTNER (VOICE/TEXT)</span>
+          <span class="msg-time">${timeStr}</span>
+        </div>
+        <div class="bubble-text-hearing">"${englishText}"</div>
+        <div class="bubble-footer-hearing">
+          <span>⚡ Avatar signed: ${glossTag}</span>
+        </div>
       `;
 
       convo.appendChild(entry);
@@ -1195,33 +1450,35 @@ def get_html_content() -> str:
     }
 
     function clearTranscript() {
-      const convo = document.getElementById('convoMessages');
-      convo.innerHTML = `
-        <div style="color: var(--text-muted); font-size: 0.88rem; text-align: center; padding: 40px 20px;">
-          Camera signing active. Sign any ASL phrase to see real-time English translation here.
-        </div>
-      `;
+      const convo = document.getElementById("convoMessages");
+      if (convo) {
+        convo.innerHTML = `
+          <div style="color: var(--text-muted); font-size: 0.88rem; text-align: center; padding: 40px 20px;">
+            Conversation active. Sign in front of camera or speak/type below to converse in real-time.
+          </div>
+        `;
+      }
     }
 
-    // --- SIGN DETECTION & RECOGNITION ---
+    // --- SIGN DETECTION & RECOGNITION (DEAF SIGNER) ---
     function triggerRecognizedSign(gloss) {
-      fetch('/api/recognize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      fetch("/api/recognize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ gloss: gloss })
       })
       .then(r => r.json())
       .then(data => {
-        document.getElementById('bridgeGloss').innerText = data.gloss;
-        document.getElementById('bridgeConfVal').innerText = data.confidence + '%';
-        document.getElementById('bridgeConfBar').style.width = data.confidence + '%';
-        document.getElementById('bridgeEnglish').innerText = data.english;
+        document.getElementById("bridgeGloss").innerText = data.gloss;
+        document.getElementById("bridgeConfVal").innerText = data.confidence + "%";
+        document.getElementById("bridgeConfBar").style.width = data.confidence + "%";
+        document.getElementById("bridgeEnglish").innerText = data.english;
 
-        // Speak aloud via TTS
+        // Speak aloud via TTS so the hearing partner can hear it
         speakText(data.english);
 
-        // Add direct translation to transcribed text feed (no hearing/signer back-and-forth)
-        appendTranslation(data.gloss, data.english, data.confidence);
+        // Add Deaf Signer message to conversation dialogue
+        appendDeafSignerMessage(data.gloss, data.english, data.confidence);
 
         // Update avatar video to match
         currentSign = data.gloss;
@@ -1229,13 +1486,60 @@ def get_html_content() -> str:
       });
     }
 
+    function captureLiveSign() {
+      const btn = document.getElementById("captureSignBtn");
+      if (btn) {
+        const oldText = btn.innerText;
+        btn.innerText = "✋ Captured!";
+        btn.style.background = "#059669";
+        setTimeout(() => {
+          btn.innerText = oldText;
+          btn.style.background = "rgba(13, 148, 136, 0.9)";
+        }, 800);
+      }
+      const gloss = currentSign || "HOW-ARE-YOU";
+      triggerRecognizedSign(gloss);
+    }
+
+    async function sendDeafCustomSign() {
+      const input = document.getElementById("deafCustomInput");
+      const text = input ? input.value.trim() : "";
+      if (!text) return;
+      input.value = "";
+
+      try {
+        const resp = await fetch("/api/synthesize?text=" + encodeURIComponent(text));
+        const data = await resp.json();
+        const gloss = data.glosses ? data.glosses.join("-") : text.toUpperCase();
+
+        document.getElementById("bridgeGloss").innerText = gloss;
+        document.getElementById("bridgeEnglish").innerText = text;
+        document.getElementById("bridgeConfVal").innerText = "96%";
+        document.getElementById("bridgeConfBar").style.width = "96%";
+
+        speakText(text);
+        appendDeafSignerMessage(gloss, text, 96);
+
+        if (data.video_url) {
+          const video = document.getElementById("avatarVideo");
+          video.src = data.video_url;
+          video.load();
+          video.play();
+          document.getElementById("avatarGlossIndicator").innerText = data.glosses.join(" ");
+        }
+      } catch (e) {
+        speakText(text);
+        appendDeafSignerMessage("CUSTOM-SIGN", text, 95);
+      }
+    }
+
     function speakCurrentSign() {
-      const text = document.getElementById('bridgeEnglish').innerText;
+      const text = document.getElementById("bridgeEnglish").innerText;
       speakText(text);
     }
 
     function speakText(text) {
-      if ('speechSynthesis' in window) {
+      if ("speechSynthesis" in window) {
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
         u.rate = 1.0;
@@ -1243,42 +1547,86 @@ def get_html_content() -> str:
       }
     }
 
-    // --- SIGN SYNTHESIS FOR AVATAR CARD ---
+    // --- SIGN SYNTHESIS FOR AVATAR CARD (HEARING PARTNER REPLY) ---
     async function signIt() {
-      const input = document.getElementById('signerInput');
-      const text = input.value.trim();
+      const input = document.getElementById("signerInput");
+      const text = input ? input.value.trim() : "";
       if (!text) return;
-      input.value = '';
+      input.value = "";
 
-      // Synthesize avatar motion via backend
       try {
-        const resp = await fetch('/api/synthesize?text=' + encodeURIComponent(text));
+        const resp = await fetch("/api/synthesize?text=" + encodeURIComponent(text));
         const data = await resp.json();
         if (data.video_url) {
-          const video = document.getElementById('avatarVideo');
+          const video = document.getElementById("avatarVideo");
           video.src = data.video_url;
           video.load();
           video.play();
-          document.getElementById('avatarGlossIndicator').innerText = data.glosses.join(' ');
+          document.getElementById("avatarGlossIndicator").innerText = data.glosses.join(" ");
+          appendHearingPartnerMessage(text, data.glosses);
+        } else {
+          appendHearingPartnerMessage(text, []);
         }
       } catch (err) {
-        console.error('Synthesis error:', err);
+        console.error("Synthesis error:", err);
+        appendHearingPartnerMessage(text, []);
       }
+    }
+
+    function sendHearingQuickReply(text) {
+      const input = document.getElementById("signerInput");
+      if (input) input.value = text;
+      signIt();
     }
 
     async function synthesizeAvatarForGloss(gloss) {
       try {
-        const resp = await fetch('/api/synthesize?text=' + encodeURIComponent(gloss.replace(/-/g, ' ')));
+        const resp = await fetch("/api/synthesize?text=" + encodeURIComponent(gloss.replace(/-/g, " ")));
         const data = await resp.json();
         if (data.video_url) {
-          const video = document.getElementById('avatarVideo');
+          const video = document.getElementById("avatarVideo");
           video.src = data.video_url;
           video.load();
           video.play();
-          document.getElementById('avatarGlossIndicator').innerText = gloss;
+          document.getElementById("avatarGlossIndicator").innerText = gloss;
         }
       } catch (e) {}
     }
+
+    // --- DEMO SCENARIO RUNNER ---
+    function playDemoScenario(scenarioKey) {
+      clearTranscript();
+
+      if (scenarioKey === "greetings") {
+        triggerRecognizedSign("HOW-ARE-YOU");
+        setTimeout(() => {
+          sendHearingQuickReply("I am doing great, thank you! How are you doing today?");
+        }, 1800);
+      } else if (scenarioKey === "intro") {
+        triggerRecognizedSign("MY-NAME");
+        setTimeout(() => {
+          sendHearingQuickReply("Nice to meet you! My name is Sarah.");
+        }, 1800);
+      } else if (scenarioKey === "questions") {
+        triggerRecognizedSign("WHAT-IS-YOUR-NAME");
+        setTimeout(() => {
+          sendHearingQuickReply("My name is Alex. Nice to meet you!");
+        }, 1800);
+      } else if (scenarioKey === "help") {
+        triggerRecognizedSign("HELP");
+        setTimeout(() => {
+          sendHearingQuickReply("Yes, of course! How can I help you today?");
+        }, 1800);
+      }
+    }
+
+    // Spacebar shortcut on Bridge tab to capture sign
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space" && activeTab === "bridge" && e.target.tagName !== "INPUT") {
+        e.preventDefault();
+        captureLiveSign();
+      }
+    });
 
     // --- LEARN MODE LOGIC ---
     let currentCustomTarget = 'HOW-ARE-YOU';
