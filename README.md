@@ -70,7 +70,7 @@ Only landmarks and text leave the camera stage; no video is uploaded.
 
 ## Prerequisites
 
-- **Python** 3.12 (the server and tests also run on 3.13). The desktop tools in `requirements.txt` need 3.12 because of `mediapipe==0.10.14`.
+- **Python** 3.12 or 3.13 (tested on 3.13). The desktop tools in `requirements.txt` need 3.12 because of `mediapipe==0.10.14`.
 - **Google Chrome** (or Edge) for the web app. Speech-to-text uses the Web Speech API, which Safari and Firefox support only partially.
 - **Webcam and microphone** for live use. They are not needed for the tests.
 - **Internet access in the browser:** MediaPipe Hands is loaded from `cdn.jsdelivr.net`. English words with no local sign clip are fetched from the public sign.mt API; everything in the demo vocabulary is local.
