@@ -1,0 +1,45 @@
+project_name: "Silent Voice Bridge"
+project_type: "web"            # web | mobile | api | ml | hardware | iot | embedded | hybrid
+
+impl_claim: >-
+  A browser web app for two-way communication between a hearing person and an ASL signer.
+  Typed or spoken English is translated to an ASL gloss sequence (ASL word order, fingerspelling
+  for unknown words) and rendered as a signing-avatar video. Webcam hand tracking recognizes a
+  core vocabulary of signs and speaks the English aloud. Teach-A-Sign records a new sign in 3 tries
+  and saves it to the shared sign library as (30, 68) palm-space templates, which DTW matching
+  classifies at 94% leave-one-out accuracy (34/36 templates).
+
+languages: ["python", "javascript", "html", "css"]
+hardware_required: false        # a standard laptop webcam and microphone; no special hardware
+
+setup:
+  - "python3 -m venv .venv"
+  - ". .venv/bin/activate && pip install -r requirements-server.txt"
+build:
+  - ". .venv/bin/activate && python -m compileall -q unified_bridge_server.py palm_normalizer.py kinetic_segmenter.py asl_engine"
+test:
+  - ". .venv/bin/activate && python -m pytest tests -v"
+  - ". .venv/bin/activate && python benchmark_library.py"
+run:
+  - ". .venv/bin/activate && python unified_bridge_server.py 8090"
+
+mock_mode:                      # how a grader runs it WITHOUT a webcam or microphone
+  available: true
+  commands:
+    - ". .venv/bin/activate && python -m pytest tests -v"
+    - ". .venv/bin/activate && (python unified_bridge_server.py 8091 & PID=$!; sleep 5; curl -s 'http://127.0.0.1:8091/api/synthesize?text=hello%20how%20are%20you'; kill $PID)"
+
+demo:
+  video: "TODO: paste demo video link"
+  screenshots: []
+
+notes: >-
+  The server runs headless; the webcam and microphone are used only in the browser (Chrome
+  recommended, since speech-to-text uses the Web Speech API). Open http://localhost:8090 after
+  `run`. The tests exercise the full English-to-avatar path, the sign library, palm-space
+  normalization and DTW matching without a camera. Network access: the browser loads MediaPipe
+  Hands from cdn.jsdelivr.net, and English words with no local sign clip fall back to the public
+  sign.mt API; all glosses used by the tests are in the local lexicon, so the tests run offline.
+  Live recognition in the web app currently uses a rule-based hand-shape classifier; the DTW
+  matcher over the library templates runs in the desktop tool teach_and_recognize_v2.py and in
+  benchmark_library.py.

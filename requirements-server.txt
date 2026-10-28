@@ -1,0 +1,9 @@
+# Lean dependencies for the web app server and the test suite.
+# Runs headless (no webcam, no GPU). The camera is used in the browser.
+# The full desktop/training toolchain (mediapipe, torch, ...) is in requirements.txt.
+numpy==2.4.4
+scipy==1.17.1
+opencv-python-headless==4.13.0.92
+fastdtw>=0.3.4
+pose-format>=0.1.7
+pytest>=8.0
