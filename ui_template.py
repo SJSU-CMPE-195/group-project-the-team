@@ -757,58 +757,87 @@ def get_html_content() -> str:
       background: var(--teal-light-hover);
     }
 
-    /* Score Card (Image 2 Bottom) */
-    .score-card {
+    /* Feedback & Coaching Tips Card (Image 2 Bottom) */
+    .feedback-card {
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 24px 30px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
+      gap: 24px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.02);
     }
-    .score-gauge-col {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-    }
-    .score-ring {
-      width: 76px;
-      height: 76px;
-      border-radius: 50%;
-      border: 5px solid var(--teal-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.65rem;
-      font-weight: 800;
-      color: var(--teal-primary);
-      flex-shrink: 0;
-    }
-    .score-details {
+    .feedback-col {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 10px;
+      flex: 1;
     }
-    .score-label {
+    .feedback-top-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .feedback-badge {
+      background: var(--teal-light);
+      color: var(--teal-primary);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .feedback-label {
       font-size: 0.72rem;
       font-weight: 700;
       color: var(--text-muted);
       letter-spacing: 0.5px;
       text-transform: uppercase;
     }
-    .score-headline {
-      font-size: 1.3rem;
+    .feedback-headline {
+      font-size: 1.25rem;
       font-weight: 800;
       color: var(--text-main);
       letter-spacing: -0.3px;
     }
-    .score-tip {
+    .feedback-well {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .tip-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
       font-size: 0.88rem;
-      color: var(--text-muted);
-      max-width: 680px;
-      line-height: 1.4;
+      line-height: 1.45;
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: 8px;
+    }
+    .tip-item.good {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+    }
+    .tip-item.messup {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+    }
+    .tip-item.improve {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+    }
+    .tip-icon {
+      font-weight: 800;
+      font-size: 1rem;
+      flex-shrink: 0;
     }
 
     /* ==================== SIGN LIBRARY TAB ==================== */
@@ -990,8 +1019,8 @@ def get_html_content() -> str:
       <div class="learn-subnav">
         <div class="step-badges">
           <div class="step-badge active">1 Watch</div>
-          <div class="step-badge active">2 Try it</div>
-          <div class="step-badge">3 Score</div>
+          <div class="step-badge">2 Try it</div>
+          <div class="step-badge">3 Tips & Review</div>
         </div>
         <div class="learn-header-right">
           <div class="learn-sign-title" id="learnSignTitle">HOW-ARE-YOU</div>
@@ -1047,26 +1076,42 @@ def get_html_content() -> str:
           <div class="user-cam-screen">
             <div class="cam-badge" id="learnCamBadge">
               <span class="pulse-dot"></span>
-              <span id="learnCamStatusText">Recording · 1.2s</span>
+              <span id="learnCamStatusText">Camera ready · Click Record attempt when ready</span>
             </div>
             <canvas id="learnCamCanvas"></canvas>
           </div>
           <div class="learn-actions">
-            <button class="btn-teal" id="recordAttemptBtn" onclick="recordAttempt()">Record attempt</button>
-            <button class="btn-light-mint" onclick="tryAgain()">Try again</button>
+            <button class="btn-teal" id="recordAttemptBtn" onclick="startRecordingAttempt()">
+              <span>⏺</span> <span>Record attempt</span>
+            </button>
+            <button class="btn-teal" id="doneSigningBtn" style="display: none; background: #059669;" onclick="finishRecordingAndEvaluate()">
+              <span>✓</span> <span>Done Signing</span>
+            </button>
+            <button class="btn-light-mint" id="tryAgainBtn" onclick="tryAgain()">Reset / Try again</button>
           </div>
         </div>
       </div>
 
-      <!-- Card 3: Your Score (Bottom) -->
-      <div class="score-card">
-        <div class="score-gauge-col">
-          <div class="score-ring" id="learnScoreRing">82</div>
-          <div class="score-details">
-            <div class="score-label">YOUR SCORE</div>
-            <div class="score-headline" id="learnScoreHeadline">Close to the example. Nice work.</div>
-            <div class="score-tip" id="learnScoreTip">
-              Tip: raise your wrist a little and keep your thumb open. This compares your motion to the example, not a full ASL check.
+      <!-- Card 3: Feedback & Coaching Tips (Bottom) -->
+      <div class="feedback-card">
+        <div class="feedback-col">
+          <div class="feedback-top-row">
+            <span class="feedback-badge" id="feedbackBadge">Ready to evaluate</span>
+            <span class="feedback-label">SIGN COACHING & TIPS</span>
+          </div>
+          <div class="feedback-headline" id="learnFeedbackHeadline">Record your attempt and click "Done Signing" to get diagnostic tips on your sign.</div>
+          <div class="feedback-well" id="feedbackDetails">
+            <div class="tip-item good" id="tipGoodRow" style="display: none;">
+              <span class="tip-icon">✓</span>
+              <span id="tipGoodText">Hand position recognized.</span>
+            </div>
+            <div class="tip-item messup" id="tipMessupRow" style="display: none;">
+              <span class="tip-icon">⚠️</span>
+              <span id="tipMessupText">Where signers commonly mess up...</span>
+            </div>
+            <div class="tip-item improve" id="tipImproveRow">
+              <span class="tip-icon">💡</span>
+              <span id="tipImproveText">Tip: Practice your sign in front of the camera, then click "Done Signing" to see specific coaching advice.</span>
             </div>
           </div>
         </div>
@@ -1350,55 +1395,96 @@ def get_html_content() -> str:
       }, 25);
     }
 
-    function recordAttempt() {
+    let isRecordingAttempt = false;
+
+    function startRecordingAttempt() {
+      isRecordingAttempt = true;
       setStepBadge(2); // 2 Try it
-      const badge = document.getElementById('learnCamStatusText');
-      const btn = document.getElementById('recordAttemptBtn');
 
-      let countdown = 3;
-      badge.innerText = "Recording in " + countdown + "s...";
-      btn.innerText = 'Get ready...';
-      btn.disabled = true;
+      const badge = document.getElementById("learnCamStatusText");
+      if (badge) badge.innerText = "● Recording in progress... Sign now!";
+      
+      const recordBtn = document.getElementById("recordAttemptBtn");
+      const doneBtn = document.getElementById("doneSigningBtn");
+      if (recordBtn) recordBtn.style.display = "none";
+      if (doneBtn) doneBtn.style.display = "inline-flex";
 
-      const timer = setInterval(() => {
-        countdown--;
-        if (countdown > 0) {
-          badge.innerText = "Recording · " + countdown + ".0s";
-          btn.innerText = "Signing... (" + countdown + "s)";
-        } else {
-          clearInterval(timer);
-          badge.innerText = 'Analyzing motion against template...';
-          btn.innerText = 'Scoring attempt...';
+      const fbBadge = document.getElementById("feedbackBadge");
+      if (fbBadge) fbBadge.innerText = "Recording attempt";
+    }
 
-          const target = currentCustomTarget || currentSign;
-          fetch('/api/score', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ gloss: target })
-          })
-          .then(r => r.json())
-          .then(data => {
-            btn.innerText = 'Record attempt';
-            btn.disabled = false;
-            badge.innerText = 'Attempt Evaluated!';
-            setStepBadge(3); // 3 Score
+    function finishRecordingAndEvaluate() {
+      isRecordingAttempt = false;
+      setStepBadge(3); // 3 Tips & Review
 
-            animateScoreRing(data.score);
-            document.getElementById('learnScoreHeadline').innerText = data.grade;
-            document.getElementById('learnScoreTip').innerText = 'Tip: ' + data.tip;
-          })
-          .catch(() => {
-            btn.innerText = 'Record attempt';
-            btn.disabled = false;
-          });
+      const badge = document.getElementById("learnCamStatusText");
+      if (badge) badge.innerText = "Checking hand signs & analyzing motion...";
+
+      const recordBtn = document.getElementById("recordAttemptBtn");
+      const doneBtn = document.getElementById("doneSigningBtn");
+      if (doneBtn) doneBtn.style.display = "none";
+      if (recordBtn) {
+        recordBtn.style.display = "inline-flex";
+        recordBtn.innerHTML = "<span>⏺</span> <span>Record again</span>";
+      }
+
+      const target = currentCustomTarget || currentSign;
+      fetch("/api/score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gloss: target })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (badge) badge.innerText = "Attempt Evaluated!";
+        
+        const fbBadge = document.getElementById("feedbackBadge");
+        if (fbBadge) fbBadge.innerText = "Evaluated just now";
+
+        document.getElementById("learnFeedbackHeadline").innerText = data.headline || data.grade || ("Review & Coaching for " + (data.gloss || target));
+        
+        const goodRow = document.getElementById("tipGoodRow");
+        const goodText = document.getElementById("tipGoodText");
+        const goodContent = data.good || "Hand motion was tracked in your camera signing box.";
+        if (goodRow && goodText) {
+          goodText.innerText = goodContent;
+          goodRow.style.display = "flex";
         }
-      }, 1000);
+
+        const messupRow = document.getElementById("tipMessupRow");
+        const messupText = document.getElementById("tipMessupText");
+        const messupContent = data.mess_up || "Where signers commonly mess up: Rushing hand transitions or dropping wrists before the sign apex.";
+        if (messupRow && messupText) {
+          messupText.innerText = messupContent;
+          messupRow.style.display = "flex";
+        }
+
+        const improveRow = document.getElementById("tipImproveRow");
+        const improveText = document.getElementById("tipImproveText");
+        const improveContent = data.tip || "Maintain your elbow steady and hold the final handshape for half a second for readability.";
+        if (improveRow && improveText) {
+          improveText.innerText = "Tip: " + improveContent;
+          improveRow.style.display = "flex";
+        }
+      })
+      .catch(err => {
+        if (badge) badge.innerText = "Attempt completed";
+      });
     }
 
     function tryAgain() {
-      document.getElementById('learnCamStatusText').innerText = 'Ready to sign';
-      setStepBadge(2);
-      recordAttempt();
+      const badge = document.getElementById("learnCamStatusText");
+      if (badge) badge.innerText = "Camera ready · Click Record attempt when ready";
+
+      const recordBtn = document.getElementById("recordAttemptBtn");
+      const doneBtn = document.getElementById("doneSigningBtn");
+      if (doneBtn) doneBtn.style.display = "none";
+      if (recordBtn) {
+        recordBtn.style.display = "inline-flex";
+        recordBtn.innerHTML = "<span>⏺</span> <span>Record attempt</span>";
+      }
+
+      setStepBadge(1);
     }
 
     function nextLesson() {

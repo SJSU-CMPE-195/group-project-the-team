@@ -132,27 +132,82 @@ class UnifiedBridgeHandler(SimpleHTTPRequestHandler):
 
     def handle_score(self, data):
         gloss = data.get("gloss", "HOW-ARE-YOU").upper().strip()
-        score = int(np.random.randint(84, 96))
         
-        # Check standard dictionary or generate personalized coaching tip
-        if gloss in SIGNS_INFO:
-            tip = SIGNS_INFO[gloss]["tip"]
-        elif "ARAMISH" in gloss or "NAME" in gloss:
-            tip = "Maintain steady chest-level signing box (Y ≈ 270px) and pace your fingerspelling transitions smoothly."
-        elif "WHAT" in gloss or "?" in gloss:
-            tip = "Hold your open palms outward with a slight shoulder shrug to mark the ASL WH-question grammatical marker."
-        elif "MEET" in gloss or "NICE" in gloss:
-            tip = "Slide dominant flat palm across base hand smoothly and bring index fingers facing together."
-        else:
-            tip = f"Good attempt on '{gloss}'. Focus on crisp finger transitions and holding apex handshapes for 0.4s."
+        # Comprehensive diagnostics: where signers commonly mess up and how to do it generally
+        coaching_db = {
+            "HOW-ARE-YOU": {
+                "headline": "Review & Coaching Tips for HOW-ARE-YOU",
+                "good": "Both hands were tracked in the front signing space.",
+                "mess_up": "Where signers commonly mess up: Bringing palms too close or dropping hands down before completing the outward arc.",
+                "tip": "Start with cupped curved hands resting on your chest, roll both palms upward and outward toward your partner, and keep thumbs slightly open."
+            },
+            "HELLO": {
+                "headline": "Review & Coaching Tips for HELLO",
+                "good": "Clean single-hand salute motion trajectory detected.",
+                "mess_up": "Where signers commonly mess up: Starting too low or waving fingers loosely like casual English.",
+                "tip": "Touch your open flat hand near your temple, then extend forward and outward in one smooth, confident salute."
+            },
+            "MY-NAME": {
+                "headline": "Review & Coaching Tips for MY-NAME",
+                "good": "Good transition between the possessive pronoun and the noun.",
+                "mess_up": "Where signers commonly mess up: Pointing with index finger for 'MY' instead of flat palm, and tapping the 'H' handshape only once.",
+                "tip": "Place your flat palm firmly on your chest for 'MY', then form two 'H' handshapes (index + middle) and tap dominant fingers twice across non-dominant fingers for 'NAME'."
+            },
+            "NICE-MEET-YOU": {
+                "headline": "Review & Coaching Tips for NICE-MEET-YOU",
+                "good": "Two-handed coordination detected in camera.",
+                "mess_up": "Where signers commonly mess up: Turning palms the wrong way on 'NICE' or not bringing index fingers facing together on 'MEET'.",
+                "tip": "Slide your dominant flat palm across the other palm smoothly, then bring both upright index fingers together facing each other in the center."
+            },
+            "THANK-YOU": {
+                "headline": "Review & Coaching Tips for THANK-YOU",
+                "good": "Good chin contact and forward release.",
+                "mess_up": "Where signers commonly mess up: Dropping the hand too low or turning it into a blowing kiss.",
+                "tip": "Touch fingertips of your flat hand to your chin, then move your hand forward and slightly downward toward your partner with a polite expression."
+            },
+            "PLEASE": {
+                "headline": "Review & Coaching Tips for PLEASE",
+                "good": "Chest-centered circular motion recognized.",
+                "mess_up": "Where signers commonly mess up: Rubbing counter-clockwise or using a clawed hand instead of a relaxed flat palm.",
+                "tip": "Place your flat palm on the center of your chest and rub in two to three gentle clockwise circles."
+            },
+            "FINE": {
+                "headline": "Review & Coaching Tips for FINE",
+                "good": "Open 5-handshape recognized on chest.",
+                "mess_up": "Where signers commonly mess up: Curling the fingers into a claw instead of keeping fingers spread.",
+                "tip": "Spread all 5 fingers wide and tap the tip of your thumb to your chest once or twice."
+            },
+            "HELP": {
+                "headline": "Review & Coaching Tips for HELP",
+                "good": "Both hands positioned correctly.",
+                "mess_up": "Where signers commonly mess up: Not lifting both hands together or using a limp base palm.",
+                "tip": "Make an 'A' fist with thumb upright, place it on top of your flat non-dominant palm, and lift both hands upward together."
+            }
+        }
 
-        headline = "Excellent execution! High fidelity match." if score >= 90 else ("Close to the example. Nice work." if score >= 80 else "Good attempt! Keep practicing.")
-        
+        if "ARAMISH" in gloss or "NAME" in gloss:
+            coaching = {
+                "headline": f"Review & Coaching Tips for '{gloss}'",
+                "good": "Fingerspelling sequence attempted in camera view.",
+                "mess_up": "Where signers commonly mess up: Dropping the wrist between letters (the bouncing glitch) or moving the hand left-to-right across the screen.",
+                "tip": "Lock your elbow and hold your hand steady in one signing box near collarbone level (Y ≈ 270px). Change finger shapes smoothly in place without dropping your wrist."
+            }
+        elif gloss in coaching_db:
+            coaching = coaching_db[gloss]
+        else:
+            coaching = {
+                "headline": f"Review & Coaching Tips for '{gloss}'",
+                "good": "Hand motion detected in camera signing space.",
+                "mess_up": "Where signers commonly mess up: Rushing through the motion or dropping hands before the sign reaches its apex.",
+                "tip": "Hold the final handshape for half a second so it is clear and readable. Keep movements centered at chest level."
+            }
+
         self.send_json({
             "gloss": gloss,
-            "score": score,
-            "grade": headline,
-            "tip": tip
+            "headline": coaching["headline"],
+            "good": coaching["good"],
+            "mess_up": coaching["mess_up"],
+            "tip": coaching["tip"]
         })
 
     def handle_recognize(self, data):
