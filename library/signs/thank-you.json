@@ -1,0 +1,23 @@
+{
+  "gloss": "THANK-YOU",
+  "english": "Thank you.",
+  "category": "core",
+  "templates": [
+    {
+      "id": "thank-you_001",
+      "signer": "aramish",
+      "tensor_file": "thank-you_001.npy"
+    },
+    {
+      "id": "thank-you_002",
+      "signer": "aramish",
+      "tensor_file": "thank-you_002.npy"
+    },
+    {
+      "id": "thank-you_003",
+      "signer": "aramish",
+      "tensor_file": "thank-you_003.npy"
+    }
+  ],
+  "verified_by_asl_reviewer": false
+}

@@ -1,0 +1,23 @@
+{
+  "gloss": "HOW-ARE-YOU",
+  "english": "How are you?",
+  "category": "core",
+  "templates": [
+    {
+      "id": "how-are-you_001",
+      "signer": "aramish",
+      "tensor_file": "how-are-you_001.npy"
+    },
+    {
+      "id": "how-are-you_002",
+      "signer": "aramish",
+      "tensor_file": "how-are-you_002.npy"
+    },
+    {
+      "id": "how-are-you_003",
+      "signer": "aramish",
+      "tensor_file": "how-are-you_003.npy"
+    }
+  ],
+  "verified_by_asl_reviewer": false
+}

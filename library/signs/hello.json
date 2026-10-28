@@ -1,0 +1,23 @@
+{
+  "gloss": "HELLO",
+  "english": "Hello!",
+  "category": "core",
+  "templates": [
+    {
+      "id": "hello_001",
+      "signer": "aramish",
+      "tensor_file": "hello_001.npy"
+    },
+    {
+      "id": "hello_002",
+      "signer": "aramish",
+      "tensor_file": "hello_002.npy"
+    },
+    {
+      "id": "hello_003",
+      "signer": "aramish",
+      "tensor_file": "hello_003.npy"
+    }
+  ],
+  "verified_by_asl_reviewer": false
+}

@@ -1,0 +1,23 @@
+{
+  "gloss": "PLEASE-REPEAT",
+  "english": "Could you please repeat that?",
+  "category": "core",
+  "templates": [
+    {
+      "id": "please-repeat_001",
+      "signer": "aramish",
+      "tensor_file": "please-repeat_001.npy"
+    },
+    {
+      "id": "please-repeat_002",
+      "signer": "aramish",
+      "tensor_file": "please-repeat_002.npy"
+    },
+    {
+      "id": "please-repeat_003",
+      "signer": "aramish",
+      "tensor_file": "please-repeat_003.npy"
+    }
+  ],
+  "verified_by_asl_reviewer": false
+}

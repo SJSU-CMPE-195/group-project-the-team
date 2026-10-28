@@ -1,0 +1,23 @@
+{
+  "gloss": "HELP",
+  "english": "I need help.",
+  "category": "core",
+  "templates": [
+    {
+      "id": "help_001",
+      "signer": "aramish",
+      "tensor_file": "help_001.npy"
+    },
+    {
+      "id": "help_002",
+      "signer": "aramish",
+      "tensor_file": "help_002.npy"
+    },
+    {
+      "id": "help_003",
+      "signer": "aramish",
+      "tensor_file": "help_003.npy"
+    }
+  ],
+  "verified_by_asl_reviewer": false
+}

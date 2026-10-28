@@ -1,0 +1,23 @@
+{
+  "gloss": "MY-NAME",
+  "english": "My name is Aramish.",
+  "category": "core",
+  "templates": [
+    {
+      "id": "my-name_001",
+      "signer": "aramish",
+      "tensor_file": "my-name_001.npy"
+    },
+    {
+      "id": "my-name_002",
+      "signer": "aramish",
+      "tensor_file": "my-name_002.npy"
+    },
+    {
+      "id": "my-name_003",
+      "signer": "aramish",
+      "tensor_file": "my-name_003.npy"
+    }
+  ],
+  "verified_by_asl_reviewer": false
+}

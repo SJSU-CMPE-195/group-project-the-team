@@ -1,0 +1,23 @@
+{
+  "gloss": "FINE",
+  "english": "I'm doing well, thank you.",
+  "category": "core",
+  "templates": [
+    {
+      "id": "fine_001",
+      "signer": "aramish",
+      "tensor_file": "fine_001.npy"
+    },
+    {
+      "id": "fine_002",
+      "signer": "aramish",
+      "tensor_file": "fine_002.npy"
+    },
+    {
+      "id": "fine_003",
+      "signer": "aramish",
+      "tensor_file": "fine_003.npy"
+    }
+  ],
+  "verified_by_asl_reviewer": false
+}

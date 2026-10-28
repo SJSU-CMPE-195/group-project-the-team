@@ -167,3 +167,9 @@ bridge_env/
 ASL Alphabet/
 data/
 models/
+
+# Silent Voice Bridge temporary generated assets
+web_static/videos/
+web_static/poses/
+pose_cache/
+*.mp4

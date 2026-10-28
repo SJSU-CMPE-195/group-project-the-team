@@ -1,0 +1,210 @@
+{
+  "FS_A": {
+    "file": "FS_A.pose",
+    "gloss": "FS_A",
+    "search_term": "a",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_B": {
+    "file": "FS_B.pose",
+    "gloss": "FS_B",
+    "search_term": "b",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_C": {
+    "file": "FS_C.pose",
+    "gloss": "FS_C",
+    "search_term": "c",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_D": {
+    "file": "FS_D.pose",
+    "gloss": "FS_D",
+    "search_term": "d",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_E": {
+    "file": "FS_E.pose",
+    "gloss": "FS_E",
+    "search_term": "e",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_F": {
+    "file": "FS_F.pose",
+    "gloss": "FS_F",
+    "search_term": "f",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_G": {
+    "file": "FS_G.pose",
+    "gloss": "FS_G",
+    "search_term": "g",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_H": {
+    "file": "FS_H.pose",
+    "gloss": "FS_H",
+    "search_term": "h",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_I": {
+    "file": "FS_I.pose",
+    "gloss": "FS_I",
+    "search_term": "i",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_J": {
+    "file": "FS_J.pose",
+    "gloss": "FS_J",
+    "search_term": "j",
+    "is_fingerspell": true,
+    "frames": 17,
+    "fps": 25.0
+  },
+  "FS_K": {
+    "file": "FS_K.pose",
+    "gloss": "FS_K",
+    "search_term": "k",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_L": {
+    "file": "FS_L.pose",
+    "gloss": "FS_L",
+    "search_term": "l",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_M": {
+    "file": "FS_M.pose",
+    "gloss": "FS_M",
+    "search_term": "m",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_N": {
+    "file": "FS_N.pose",
+    "gloss": "FS_N",
+    "search_term": "n",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_O": {
+    "file": "FS_O.pose",
+    "gloss": "FS_O",
+    "search_term": "o",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_P": {
+    "file": "FS_P.pose",
+    "gloss": "FS_P",
+    "search_term": "p",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_Q": {
+    "file": "FS_Q.pose",
+    "gloss": "FS_Q",
+    "search_term": "q",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_R": {
+    "file": "FS_R.pose",
+    "gloss": "FS_R",
+    "search_term": "r",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_S": {
+    "file": "FS_S.pose",
+    "gloss": "FS_S",
+    "search_term": "s",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_T": {
+    "file": "FS_T.pose",
+    "gloss": "FS_T",
+    "search_term": "t",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_U": {
+    "file": "FS_U.pose",
+    "gloss": "FS_U",
+    "search_term": "u",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_V": {
+    "file": "FS_V.pose",
+    "gloss": "FS_V",
+    "search_term": "v",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_W": {
+    "file": "FS_W.pose",
+    "gloss": "FS_W",
+    "search_term": "w",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_X": {
+    "file": "FS_X.pose",
+    "gloss": "FS_X",
+    "search_term": "x",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_Y": {
+    "file": "FS_Y.pose",
+    "gloss": "FS_Y",
+    "search_term": "y",
+    "is_fingerspell": true,
+    "frames": 12,
+    "fps": 25.0
+  },
+  "FS_Z": {
+    "file": "FS_Z.pose",
+    "gloss": "FS_Z",
+    "search_term": "z",
+    "is_fingerspell": true,
+    "frames": 42,
+    "fps": 25.0
+  }
+}
