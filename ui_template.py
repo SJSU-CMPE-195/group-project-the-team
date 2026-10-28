@@ -1033,6 +1033,7 @@ def get_html_content() -> str:
         <div class="learn-input-row">
           <input type="text" id="learnTextInput" class="learn-input-field" 
                  placeholder="Type any sentence to demonstrate (e.g. 'How are you?', 'My name is Aramish', 'Nice to meet you')" 
+                 oninput="handleCustomTextInput(this.value)"
                  onkeydown="if(event.key==='Enter') demonstrateCustomSentence()">
           <button class="btn-teach-sign" onclick="demonstrateCustomSentence()">
             <span>Demonstrate Sign</span>
@@ -1293,61 +1294,135 @@ def get_html_content() -> str:
       });
     }
 
+    function handleCustomTextInput(val) {
+      const text = val.trim();
+      if (!text) return;
+      currentCustomTarget = text;
+      const sub = document.getElementById("yourTurnSubTitle");
+      if (sub) sub.innerText = "Sign: " + text;
+      // Preload tips for typed sentence immediately
+      updateCoachingTips(text, false);
+    }
+
+    async function updateCoachingTips(target, isEvaluated) {
+      if (!target) return;
+      const fbBadge = document.getElementById("feedbackBadge");
+      if (fbBadge) {
+        fbBadge.innerText = isEvaluated ? "Evaluated just now" : ("Coaching for " + target);
+      }
+
+      try {
+        const resp = await fetch("/api/score", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ gloss: target, text: target })
+        });
+        const data = await resp.json();
+
+        const headlineEl = document.getElementById("learnFeedbackHeadline");
+        if (headlineEl) {
+          headlineEl.innerText = data.headline || data.grade || ('Review & Coaching for "' + (data.gloss || target) + '"');
+        }
+
+        const goodRow = document.getElementById("tipGoodRow");
+        const goodText = document.getElementById("tipGoodText");
+        const goodContent = data.good || ('Hand motion tracked for "' + target + '".');
+        if (goodRow && goodText) {
+          goodText.innerText = goodContent;
+          goodRow.style.display = "flex";
+        }
+
+        const messupRow = document.getElementById("tipMessupRow");
+        const messupText = document.getElementById("tipMessupText");
+        const messupContent = data.mess_up || "Where signers commonly mess up: Rushing hand transitions or dropping wrists before the sign apex.";
+        if (messupRow && messupText) {
+          messupText.innerText = messupContent;
+          messupRow.style.display = "flex";
+        }
+
+        const improveRow = document.getElementById("tipImproveRow");
+        const improveText = document.getElementById("tipImproveText");
+        const improveContent = data.tip || "Maintain your elbow steady and hold the final handshape for half a second for readability.";
+        if (improveRow && improveText) {
+          improveText.innerText = "Tip: " + improveContent;
+          improveRow.style.display = "flex";
+        }
+      } catch (e) {
+        console.error("Coaching fetch error:", e);
+      }
+    }
+
     async function demonstrateCustomSentence() {
-      const input = document.getElementById('learnTextInput');
-      const text = input.value.trim();
+      const input = document.getElementById("learnTextInput");
+      const text = input ? input.value.trim() : "";
       if (!text) return;
 
       currentCustomTarget = text;
-      currentSign = text.toUpperCase();
-      document.getElementById('learnSignTitle').innerText = text.toUpperCase();
-      document.getElementById('learnLessonNum').innerText = 'Custom Sentence · AI Skeleton Demonstration';
-      const sub = document.getElementById('yourTurnSubTitle');
+      currentSign = text;
+      document.getElementById("learnSignTitle").innerText = text.toUpperCase();
+      document.getElementById("learnLessonNum").innerText = "Custom Sentence · AI Skeleton Demonstration";
+      const sub = document.getElementById("yourTurnSubTitle");
       if (sub) sub.innerText = "Sign: " + text;
+
+      // Immediately update coaching & tips for this specific sentence
+      updateCoachingTips(text, false);
 
       setStepBadge(1); // 1 Watch
 
-      const badge = document.getElementById('learnCamStatusText');
-      if (badge) badge.innerText = 'Watch the avatar motion';
+      const badge = document.getElementById("learnCamStatusText");
+      if (badge) badge.innerText = "Watch the avatar motion";
+
+      // Reset record button if recording was active
+      const recordBtn = document.getElementById("recordAttemptBtn");
+      const doneBtn = document.getElementById("doneSigningBtn");
+      if (doneBtn) doneBtn.style.display = "none";
+      if (recordBtn) {
+        recordBtn.style.display = "inline-flex";
+        recordBtn.innerHTML = "<span>⏺</span> <span>Record attempt</span>";
+      }
 
       // Synthesize custom sentence video
       try {
-        const resp = await fetch('/api/synthesize?text=' + encodeURIComponent(text));
+        const resp = await fetch("/api/synthesize?text=" + encodeURIComponent(text));
         const data = await resp.json();
         if (data.video_url) {
-          const v = document.getElementById('learnAvatarVideo');
+          const v = document.getElementById("learnAvatarVideo");
           v.src = data.video_url;
           v.playbackRate = slowMo ? 0.5 : 1.0;
           v.load();
           v.play();
         }
       } catch (err) {
-        console.error('Synthesize error:', err);
+        console.error("Synthesize error:", err);
       }
     }
 
     function setAndDemonstrate(text) {
-      document.getElementById('learnTextInput').value = text;
+      const input = document.getElementById("learnTextInput");
+      if (input) input.value = text;
       demonstrateCustomSentence();
     }
 
     function loadLearnSign(gloss) {
       currentCustomTarget = gloss;
       currentSign = gloss;
-      document.getElementById('learnSignTitle').innerText = gloss;
+      document.getElementById("learnSignTitle").innerText = gloss;
       const idx = signOrder.indexOf(gloss);
       const lessonText = idx >= 0 ? ("Lesson " + (idx + 1) + " of " + signOrder.length + " · Greetings") : "Practice Sign";
-      document.getElementById('learnLessonNum').innerText = lessonText;
-      const sub = document.getElementById('yourTurnSubTitle');
+      document.getElementById("learnLessonNum").innerText = lessonText;
+      const sub = document.getElementById("yourTurnSubTitle");
       if (sub) sub.innerText = "Sign: " + gloss;
+
+      // Update coaching card for this lesson sign
+      updateCoachingTips(gloss, false);
 
       setStepBadge(1);
 
-      fetch('/api/synthesize?text=' + encodeURIComponent(gloss.replace(/-/g, ' ')))
+      fetch("/api/synthesize?text=" + encodeURIComponent(gloss.replace(/-/g, " ")))
         .then(r => r.json())
         .then(data => {
           if (data.video_url) {
-            const v = document.getElementById('learnAvatarVideo');
+            const v = document.getElementById("learnAvatarVideo");
             v.src = data.video_url;
             v.playbackRate = slowMo ? 0.5 : 1.0;
             v.load();
@@ -1357,7 +1432,7 @@ def get_html_content() -> str:
     }
 
     function playLearnAvatar() {
-      const v = document.getElementById('learnAvatarVideo');
+      const v = document.getElementById("learnAvatarVideo");
       v.currentTime = 0;
       v.playbackRate = slowMo ? 0.5 : 1.0;
       v.play();
@@ -1365,34 +1440,51 @@ def get_html_content() -> str:
 
     function toggleSlowMo() {
       slowMo = !slowMo;
-      const btn = document.getElementById('slowMoBtn');
-      const v = document.getElementById('learnAvatarVideo');
+      const btn = document.getElementById("slowMoBtn");
+      const v = document.getElementById("learnAvatarVideo");
       if (slowMo) {
-        btn.innerText = 'Normal speed (1x)';
         v.playbackRate = 0.5;
+        btn.classList.add("active");
+        btn.innerText = "Normal speed";
       } else {
-        btn.innerText = 'Slow motion (0.5x)';
         v.playbackRate = 1.0;
+        btn.classList.remove("active");
+        btn.innerText = "Slow motion";
       }
     }
 
-    function handCloseUp() {
-      const v = document.getElementById('learnAvatarVideo');
-      v.style.transform = v.style.transform === 'scale(1.4)' ? 'scale(1.0)' : 'scale(1.4)';
+    function toggleHandZoom() {
+      handZoom = !handZoom;
+      const btn = document.getElementById("zoomBtn");
+      const v = document.getElementById("learnAvatarVideo");
+      if (handZoom) {
+        v.style.transform = "scale(1.45) translateY(10%)";
+        btn.classList.add("active");
+        btn.innerText = "Full body";
+      } else {
+        v.style.transform = "scale(1.0)";
+        btn.classList.remove("active");
+        btn.innerText = "Hand close-up";
+      }
     }
 
-    function animateScoreRing(targetScore) {
-      const ring = document.getElementById('learnScoreRing');
-      let current = 0;
-      const step = Math.max(1, Math.floor(targetScore / 25));
-      const interval = setInterval(() => {
-        current += step;
-        if (current >= targetScore) {
-          current = targetScore;
-          clearInterval(interval);
+    function setStepBadge(stepNum) {
+      const steps = [
+        { id: "stepBadge1", num: 1 },
+        { id: "stepBadge2", num: 2 },
+        { id: "stepBadge3", num: 3 }
+      ];
+      steps.forEach(s => {
+        const el = document.getElementById(s.id);
+        if (!el) return;
+        if (s.num === stepNum) {
+          el.className = "step-item step-current";
+        } else if (s.num < stepNum) {
+          el.className = "step-item step-done";
+        } else {
+          el.className = "step-item step-pending";
         }
-        ring.innerText = current;
-      }, 25);
+      });
     }
 
     let isRecordingAttempt = false;
@@ -1428,47 +1520,11 @@ def get_html_content() -> str:
         recordBtn.innerHTML = "<span>⏺</span> <span>Record again</span>";
       }
 
-      const target = currentCustomTarget || currentSign;
-      fetch("/api/score", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gloss: target })
-      })
-      .then(r => r.json())
-      .then(data => {
+      const inputVal = (document.getElementById("learnTextInput") && document.getElementById("learnTextInput").value.trim());
+      const target = inputVal || currentCustomTarget || currentSign || "HOW-ARE-YOU";
+
+      updateCoachingTips(target, true).then(() => {
         if (badge) badge.innerText = "Attempt Evaluated!";
-        
-        const fbBadge = document.getElementById("feedbackBadge");
-        if (fbBadge) fbBadge.innerText = "Evaluated just now";
-
-        document.getElementById("learnFeedbackHeadline").innerText = data.headline || data.grade || ("Review & Coaching for " + (data.gloss || target));
-        
-        const goodRow = document.getElementById("tipGoodRow");
-        const goodText = document.getElementById("tipGoodText");
-        const goodContent = data.good || "Hand motion was tracked in your camera signing box.";
-        if (goodRow && goodText) {
-          goodText.innerText = goodContent;
-          goodRow.style.display = "flex";
-        }
-
-        const messupRow = document.getElementById("tipMessupRow");
-        const messupText = document.getElementById("tipMessupText");
-        const messupContent = data.mess_up || "Where signers commonly mess up: Rushing hand transitions or dropping wrists before the sign apex.";
-        if (messupRow && messupText) {
-          messupText.innerText = messupContent;
-          messupRow.style.display = "flex";
-        }
-
-        const improveRow = document.getElementById("tipImproveRow");
-        const improveText = document.getElementById("tipImproveText");
-        const improveContent = data.tip || "Maintain your elbow steady and hold the final handshape for half a second for readability.";
-        if (improveRow && improveText) {
-          improveText.innerText = "Tip: " + improveContent;
-          improveRow.style.display = "flex";
-        }
-      })
-      .catch(err => {
-        if (badge) badge.innerText = "Attempt completed";
       });
     }
 
@@ -1482,6 +1538,12 @@ def get_html_content() -> str:
       if (recordBtn) {
         recordBtn.style.display = "inline-flex";
         recordBtn.innerHTML = "<span>⏺</span> <span>Record attempt</span>";
+      }
+
+      const inputVal = (document.getElementById("learnTextInput") && document.getElementById("learnTextInput").value.trim());
+      const target = inputVal || currentCustomTarget || currentSign;
+      if (target) {
+        updateCoachingTips(target, false);
       }
 
       setStepBadge(1);
