@@ -560,7 +560,90 @@ def get_html_content() -> str:
       background: var(--teal-hover);
     }
 
-    /* ==================== LEARN MODE (IMAGE 2) ==================== */
+    
+    /* Learn Mode Text Input for Dynamic Sentences */
+    .learn-input-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .learn-input-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .learn-input-field {
+      flex: 1;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.2s;
+      background: #f8fafc;
+    }
+    .learn-input-field:focus {
+      border-color: var(--teal-primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(13, 105, 94, 0.1);
+    }
+    .btn-teach-sign {
+      background: var(--teal-primary);
+      color: #ffffff;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .btn-teach-sign:hover {
+      background: var(--teal-hover);
+    }
+    .learn-quick-chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .learn-quick-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .chip-sm {
+      background: #f1f5f9;
+      color: var(--text-main);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .chip-sm:hover {
+      background: var(--teal-light);
+      color: var(--teal-primary);
+      border-color: var(--teal-primary);
+    }
+
+/* ==================== LEARN MODE (IMAGE 2) ==================== */
     .learn-subnav {
       display: flex;
       justify-content: space-between;
@@ -912,7 +995,29 @@ def get_html_content() -> str:
         </div>
         <div class="learn-header-right">
           <div class="learn-sign-title" id="learnSignTitle">HOW-ARE-YOU</div>
-          <div class="learn-lesson-num" id="learnLessonNum">Lesson 2 of 8 · Greetings</div>
+          <div class="learn-lesson-num" id="learnLessonNum">Lesson 2 of 11 · Greetings</div>
+        </div>
+      </div>
+
+      <!-- Type Sentence to Learn & Demonstrate -->
+      <div class="learn-input-card">
+        <div class="learn-input-row">
+          <input type="text" id="learnTextInput" class="learn-input-field" 
+                 placeholder="Type any sentence to demonstrate (e.g. 'How are you?', 'My name is Aramish', 'Nice to meet you')" 
+                 onkeydown="if(event.key==='Enter') demonstrateCustomSentence()">
+          <button class="btn-teach-sign" onclick="demonstrateCustomSentence()">
+            <span>Demonstrate Sign</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <div class="learn-quick-chips">
+          <span class="learn-quick-label">Try Examples:</span>
+          <span class="chip-sm" onclick="setAndDemonstrate('How are you?')">How are you?</span>
+          <span class="chip-sm" onclick="setAndDemonstrate('Hello!')">Hello!</span>
+          <span class="chip-sm" onclick="setAndDemonstrate('My name is Aramish')">My name is Aramish</span>
+          <span class="chip-sm" onclick="setAndDemonstrate('Nice to meet you')">Nice to meet you</span>
+          <span class="chip-sm" onclick="setAndDemonstrate('What is your name?')">What is your name?</span>
+          <span class="chip-sm" onclick="setAndDemonstrate('Thank you')">Thank you</span>
         </div>
       </div>
 
@@ -935,7 +1040,10 @@ def get_html_content() -> str:
 
         <!-- Card 2: Your Turn -->
         <div class="learn-card">
-          <div class="learn-card-title">YOUR TURN</div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <div class="learn-card-title">YOUR TURN: RECORD ATTEMPT</div>
+            <div id="yourTurnSubTitle" style="font-size: 0.8rem; font-weight: 700; color: var(--teal-primary);">Sign: HOW-ARE-YOU</div>
+          </div>
           <div class="user-cam-screen">
             <div class="cam-badge" id="learnCamBadge">
               <span class="pulse-dot"></span>
@@ -1008,6 +1116,8 @@ def get_html_content() -> str:
         document.querySelectorAll('.nav-tab')[1].classList.add('active');
         document.getElementById('tab-learn').classList.add('active');
         document.getElementById('headerRightStatus').innerText = document.getElementById('learnLessonNum').innerText;
+        setTimeout(resizeCanvases, 60);
+        if (!isWebcamRunning) startWebcam();
         loadLearnSign(currentSign);
       } else if (tab === 'library') {
         document.querySelectorAll('.nav-tab')[2].classList.add('active');
@@ -1125,12 +1235,68 @@ def get_html_content() -> str:
     }
 
     // --- LEARN MODE LOGIC ---
+    let currentCustomTarget = 'HOW-ARE-YOU';
+
+    function setStepBadge(activeStep) {
+      const badges = document.querySelectorAll('.step-badges .step-badge');
+      badges.forEach((b, idx) => {
+        if (idx < activeStep) {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
+        }
+      });
+    }
+
+    async function demonstrateCustomSentence() {
+      const input = document.getElementById('learnTextInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      currentCustomTarget = text;
+      currentSign = text.toUpperCase();
+      document.getElementById('learnSignTitle').innerText = text.toUpperCase();
+      document.getElementById('learnLessonNum').innerText = 'Custom Sentence · AI Skeleton Demonstration';
+      const sub = document.getElementById('yourTurnSubTitle');
+      if (sub) sub.innerText = "Sign: " + text;
+
+      setStepBadge(1); // 1 Watch
+
+      const badge = document.getElementById('learnCamStatusText');
+      if (badge) badge.innerText = 'Watch the avatar motion';
+
+      // Synthesize custom sentence video
+      try {
+        const resp = await fetch('/api/synthesize?text=' + encodeURIComponent(text));
+        const data = await resp.json();
+        if (data.video_url) {
+          const v = document.getElementById('learnAvatarVideo');
+          v.src = data.video_url;
+          v.playbackRate = slowMo ? 0.5 : 1.0;
+          v.load();
+          v.play();
+        }
+      } catch (err) {
+        console.error('Synthesize error:', err);
+      }
+    }
+
+    function setAndDemonstrate(text) {
+      document.getElementById('learnTextInput').value = text;
+      demonstrateCustomSentence();
+    }
+
     function loadLearnSign(gloss) {
+      currentCustomTarget = gloss;
       currentSign = gloss;
       document.getElementById('learnSignTitle').innerText = gloss;
       const idx = signOrder.indexOf(gloss);
-      const lessonText = idx >= 0 ? `Lesson ${idx + 1} of ${signOrder.length} · Greetings` : 'Practice Sign';
+      const lessonText = idx >= 0 ? ("Lesson " + (idx + 1) + " of " + signOrder.length + " · Greetings") : "Practice Sign";
       document.getElementById('learnLessonNum').innerText = lessonText;
+      const sub = document.getElementById('yourTurnSubTitle');
+      if (sub) sub.innerText = "Sign: " + gloss;
+
+      setStepBadge(1);
 
       fetch('/api/synthesize?text=' + encodeURIComponent(gloss.replace(/-/g, ' ')))
         .then(r => r.json())
@@ -1170,32 +1336,68 @@ def get_html_content() -> str:
       v.style.transform = v.style.transform === 'scale(1.4)' ? 'scale(1.0)' : 'scale(1.4)';
     }
 
+    function animateScoreRing(targetScore) {
+      const ring = document.getElementById('learnScoreRing');
+      let current = 0;
+      const step = Math.max(1, Math.floor(targetScore / 25));
+      const interval = setInterval(() => {
+        current += step;
+        if (current >= targetScore) {
+          current = targetScore;
+          clearInterval(interval);
+        }
+        ring.innerText = current;
+      }, 25);
+    }
+
     function recordAttempt() {
+      setStepBadge(2); // 2 Try it
       const badge = document.getElementById('learnCamStatusText');
       const btn = document.getElementById('recordAttemptBtn');
-      badge.innerText = 'Recording attempt...';
-      btn.innerText = 'Signing...';
 
-      setTimeout(() => {
-        btn.innerText = 'Record attempt';
-        badge.innerText = 'Attempt Recorded!';
+      let countdown = 3;
+      badge.innerText = "Recording in " + countdown + "s...";
+      btn.innerText = 'Get ready...';
+      btn.disabled = true;
 
-        fetch('/api/score', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ gloss: currentSign })
-        })
-        .then(r => r.json())
-        .then(data => {
-          document.getElementById('learnScoreRing').innerText = data.score;
-          document.getElementById('learnScoreHeadline').innerText = data.grade;
-          document.getElementById('learnScoreTip').innerText = 'Tip: ' + data.tip;
-        });
-      }, 2500);
+      const timer = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+          badge.innerText = "Recording · " + countdown + ".0s";
+          btn.innerText = "Signing... (" + countdown + "s)";
+        } else {
+          clearInterval(timer);
+          badge.innerText = 'Analyzing motion against template...';
+          btn.innerText = 'Scoring attempt...';
+
+          const target = currentCustomTarget || currentSign;
+          fetch('/api/score', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ gloss: target })
+          })
+          .then(r => r.json())
+          .then(data => {
+            btn.innerText = 'Record attempt';
+            btn.disabled = false;
+            badge.innerText = 'Attempt Evaluated!';
+            setStepBadge(3); // 3 Score
+
+            animateScoreRing(data.score);
+            document.getElementById('learnScoreHeadline').innerText = data.grade;
+            document.getElementById('learnScoreTip').innerText = 'Tip: ' + data.tip;
+          })
+          .catch(() => {
+            btn.innerText = 'Record attempt';
+            btn.disabled = false;
+          });
+        }
+      }, 1000);
     }
 
     function tryAgain() {
       document.getElementById('learnCamStatusText').innerText = 'Ready to sign';
+      setStepBadge(2);
       recordAttempt();
     }
 
