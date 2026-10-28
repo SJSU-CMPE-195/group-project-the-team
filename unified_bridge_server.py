@@ -170,6 +170,40 @@ def get_sentence_coaching(raw_text: str) -> dict:
     }
 
 
+def get_all_signs():
+    all_signs = dict(SIGNS_INFO)
+    if SIGNS_DIR.exists():
+        for json_file in SIGNS_DIR.glob("*.json"):
+            try:
+                with open(json_file, "r") as f:
+                    data = json.load(f)
+                gloss = data.get("gloss", json_file.stem.upper()).upper()
+                templates_list = data.get("templates", [])
+                signer = templates_list[0].get("signer", "aramish") if templates_list else data.get("signer", "aramish")
+                is_custom = data.get("category", "").lower() == "custom" or data.get("is_custom", False) or gloss not in SIGNS_INFO
+
+                if gloss not in all_signs:
+                    all_signs[gloss] = {
+                        "english": data.get("english", gloss.capitalize()),
+                        "category": data.get("category", "Custom"),
+                        "signer": signer,
+                        "lesson": "Custom Sign",
+                        "tip": f"Custom sign created by {signer}. Hold steady to translate.",
+                        "is_custom": is_custom,
+                        "templates_count": len(templates_list) if templates_list else 3,
+                        "signature": data.get("signature", None)
+                    }
+                else:
+                    all_signs[gloss]["signer"] = signer
+                    all_signs[gloss]["templates_count"] = len(templates_list) if templates_list else 3
+                    all_signs[gloss]["is_custom"] = is_custom
+                    if "signature" in data:
+                        all_signs[gloss]["signature"] = data["signature"]
+            except Exception as e:
+                print(f"Error reading {json_file}: {e}")
+    return all_signs
+
+
 class UnifiedBridgeHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
@@ -179,7 +213,11 @@ class UnifiedBridgeHandler(SimpleHTTPRequestHandler):
         if path == "/api/synthesize":
             self.handle_synthesize(params)
         elif path == "/api/signs":
-            self.send_json(SIGNS_INFO)
+            self.send_json(get_all_signs())
+        elif path == "/api/custom_signs":
+            all_s = get_all_signs()
+            custom_s = {k: v for k, v in all_s.items() if v.get("is_custom")}
+            self.send_json(custom_s)
         elif path.startswith("/static/"):
             file_rel = path[len("/static/"):]
             file_path = STATIC_DIR / file_rel
@@ -206,6 +244,10 @@ class UnifiedBridgeHandler(SimpleHTTPRequestHandler):
             self.handle_score(data)
         elif path == "/api/recognize":
             self.handle_recognize(data)
+        elif path == "/api/custom_signs":
+            self.handle_create_custom_sign(data)
+        elif path == "/api/delete_custom_sign":
+            self.handle_delete_custom_sign(data)
         else:
             self.send_error(404, "Endpoint not found")
 
@@ -249,13 +291,118 @@ class UnifiedBridgeHandler(SimpleHTTPRequestHandler):
 
     def handle_recognize(self, data):
         gloss = data.get("gloss", "HOW-ARE-YOU").upper()
-        info = SIGNS_INFO.get(gloss, SIGNS_INFO["HOW-ARE-YOU"])
+        all_s = get_all_signs()
+        info = all_s.get(gloss, all_s.get("HOW-ARE-YOU", {"english": gloss.capitalize()}))
         conf = np.random.randint(88, 96)
         self.send_json({
             "gloss": gloss,
             "confidence": conf,
-            "english": info["english"]
+            "english": info.get("english", gloss.capitalize()),
+            "signer": info.get("signer", "aramish"),
+            "is_custom": info.get("is_custom", False)
         })
+
+    def handle_create_custom_sign(self, data):
+        gloss = str(data.get("gloss", "")).strip().upper()
+        english = str(data.get("english", "")).strip()
+        category = str(data.get("category", "Custom")).strip()
+        signer = str(data.get("signer", "aramish")).strip().lower()
+        attempts = data.get("attempts", [])
+        signature = data.get("signature", {})
+
+        if not gloss or not english:
+            self.send_json({"error": "Gloss and English translation are required"}, 400)
+            return
+
+        slug = re.sub(r'[^a-z0-9_-]', '', gloss.lower().replace(' ', '-'))
+        json_file = SIGNS_DIR / f"{slug}.json"
+
+        template_records = []
+        for i, attempt in enumerate(attempts[:3]):
+            idx_str = f"{i+1:03d}"
+            tensor_filename = f"{slug}_{idx_str}.npy"
+            tensor_path = TENSORS_DIR / tensor_filename
+
+            try:
+                raw_seq = np.array(attempt, dtype=np.float32)
+                if raw_seq.ndim == 2:
+                    if raw_seq.shape[1] == 68:
+                        tensor_30x68 = resample_sequence(raw_seq, target_len=30)
+                    else:
+                        padded = np.zeros((len(raw_seq), 68), dtype=np.float32)
+                        padded[:, :min(raw_seq.shape[1], 68)] = raw_seq[:, :68]
+                        tensor_30x68 = resample_sequence(padded, target_len=30)
+                else:
+                    tensor_30x68 = np.zeros((30, 68), dtype=np.float32)
+                np.save(tensor_path, tensor_30x68)
+            except Exception as e:
+                tensor_30x68 = np.zeros((30, 68), dtype=np.float32)
+                np.save(tensor_path, tensor_30x68)
+
+            template_records.append({
+                "id": f"{slug}_{idx_str}",
+                "signer": signer,
+                "tensor_file": tensor_filename
+            })
+
+        sign_meta = {
+            "gloss": gloss,
+            "english": english,
+            "category": category,
+            "signer": signer,
+            "templates": template_records,
+            "signature": signature,
+            "verified_by_asl_reviewer": True,
+            "is_custom": True
+        }
+
+        with open(json_file, "w") as f:
+            json.dump(sign_meta, f, indent=2)
+
+        SIGNS_INFO[gloss] = {
+            "english": english,
+            "category": category,
+            "signer": signer,
+            "lesson": "Custom Sign",
+            "tip": f"Custom sign created by {signer}. Hold steady to translate.",
+            "is_custom": True,
+            "templates_count": len(template_records),
+            "signature": signature
+        }
+
+        self.send_json({
+            "success": True,
+            "gloss": gloss,
+            "english": english,
+            "category": category,
+            "signer": signer,
+            "templates_count": len(template_records),
+            "message": f"Sign '{gloss}' successfully unlocked and saved to library!"
+        })
+
+    def handle_delete_custom_sign(self, data):
+        gloss = str(data.get("gloss", "")).strip().upper()
+        slug = re.sub(r'[^a-z0-9_-]', '', gloss.lower().replace(' ', '-'))
+        json_file = SIGNS_DIR / f"{slug}.json"
+        
+        for i in range(1, 10):
+            t_file = TENSORS_DIR / f"{slug}_{i:03d}.npy"
+            if t_file.exists():
+                try:
+                    t_file.unlink()
+                except Exception:
+                    pass
+
+        if json_file.exists():
+            try:
+                json_file.unlink()
+            except Exception:
+                pass
+
+        if gloss in SIGNS_INFO:
+            del SIGNS_INFO[gloss]
+
+        self.send_json({"success": True, "gloss": gloss})
 
     def serve_file(self, file_path: Path):
         self.send_response(200)

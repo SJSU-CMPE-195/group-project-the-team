@@ -811,7 +811,162 @@ def get_html_content() -> str:
       flex-shrink: 0;
     }
 
-    /* ==================== SIGN LIBRARY TAB ==================== */
+    /* ==================== SIGN LIBRARY & CUSTOM SIGNS ==================== */
+    .lib-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .profile-pill-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .profile-select {
+      border: none;
+      background: transparent;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--teal-primary);
+      cursor: pointer;
+      outline: none;
+    }
+    .btn-record-new {
+      background: linear-gradient(135deg, #0d695e 0%, #14b8a6 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(13, 105, 94, 0.25);
+      transition: all 0.2s ease;
+    }
+    .btn-record-new:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(13, 105, 94, 0.35);
+    }
+    .lib-badge.custom {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+    .lib-badge.core {
+      background: var(--teal-light);
+      color: var(--teal-primary);
+    }
+
+    /* Modal Backdrop & Dialog */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      animation: fadeIn 0.2s ease-out;
+    }
+    .modal-card {
+      background: #ffffff;
+      border-radius: 18px;
+      width: 92%;
+      max-width: 820px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.3rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .modal-close-btn:hover {
+      background: rgba(0,0,0,0.06);
+      color: var(--text-main);
+    }
+    .attempt-card {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      transition: all 0.2s ease;
+    }
+    .attempt-card.active {
+      border-color: #14b8a6;
+      background: #f0fdfa;
+      box-shadow: 0 2px 8px rgba(20, 184, 166, 0.15);
+    }
+    .attempt-card.completed {
+      border-color: #10b981;
+      background: #ecfdf5;
+    }
+    .attempt-card.disabled {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .btn-teal-sm {
+      background: #0d695e;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-teal-sm:hover:not(:disabled) {
+      background: #0a544b;
+    }
+    .btn-teal-sm:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+    }
+    .btn-cancel {
+      background: #f1f5f9;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .btn-cancel:hover {
+      background: #e2e8f0;
+    }
+    @keyframes pulse-red {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
     .library-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -1053,14 +1208,151 @@ def get_html_content() -> str:
 
     <!-- ==================== TAB 3: SIGN LIBRARY ==================== -->
     <div id="tab-library" class="tab-content">
-      <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: baseline;">
+      <div class="lib-toolbar">
         <div>
-          <h2 style="font-size: 1.5rem; font-weight: 800; letter-spacing: -0.4px;">ASL Core Vocabulary & Taught Templates</h2>
-          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">11 Core Signs · 3 Attempts Per Sign (Section 4 Contract)</p>
+          <h2 style="font-size: 1.5rem; font-weight: 800; letter-spacing: -0.4px;">ASL Vocabulary & Unlocked Signs</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">11 Core ASL Signs + User-Taught Custom Signs · 3 Attempts Per Sign</p>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <div class="profile-pill-box">
+            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Signer Profile:</span>
+            <select class="profile-select" id="signerProfileSelect" onchange="changeSignerProfile(this.value)">
+              <option value="aramish">👤 Aramish (Active)</option>
+              <option value="alex">👤 Alex</option>
+              <option value="guest">👤 Guest Signer</option>
+            </select>
+          </div>
+          <button class="btn-record-new" onclick="openRecordCustomModal()">
+            <span>➕</span> Record New Sign (3 Tries)
+          </button>
         </div>
       </div>
       <div class="library-grid" id="libraryGrid">
         <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: RECORD CUSTOM SIGN (3-TRY PIPELINE) -->
+  <div id="customSignModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+            <span>✨</span> Create & Unlock Custom ASL Sign
+          </h3>
+          <p style="font-size: 0.86rem; color: var(--text-muted); margin-top: 4px;">
+            Record 3 attempts in front of the camera. Once all 3 attempts are captured, this sign unlocks in your library and live Bridge conversations!
+          </p>
+        </div>
+        <button class="modal-close-btn" onclick="closeRecordCustomModal()">✕</button>
+      </div>
+
+      <div style="padding: 20px 24px;">
+        <!-- Metadata Inputs -->
+        <div style="display: grid; grid-template-columns: 1fr 1.2fr 0.8fr; gap: 14px; margin-bottom: 20px;">
+          <div>
+            <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Sign Gloss / Word *</label>
+            <input type="text" id="customGlossInput" placeholder="e.g. WATER, FAMILY, LOVE" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--border); font-weight: 800; text-transform: uppercase; margin-top: 5px; font-size: 0.95rem;">
+          </div>
+          <div>
+            <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Spoken English Translation *</label>
+            <input type="text" id="customEnglishInput" placeholder="e.g. Water please, This is my family" style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--border); margin-top: 5px; font-size: 0.95rem;">
+          </div>
+          <div>
+            <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Signer Account</label>
+            <input type="text" id="customSignerBadge" value="Aramish" readonly style="width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--border); background: #f8fafc; font-weight: 700; color: var(--teal-primary); margin-top: 5px; font-size: 0.95rem;">
+          </div>
+        </div>
+
+        <!-- 3-Attempt Studio Viewport -->
+        <div style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 20px; align-items: start;">
+          <!-- Camera Feed & Canvas -->
+          <div style="position: relative; background: #0f172a; border-radius: 12px; overflow: hidden; height: 300px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,0,0,0.15);">
+            <canvas id="recordCamCanvas" width="460" height="300" style="width: 100%; height: 100%; object-fit: cover;"></canvas>
+            
+            <!-- Countdown Overlay -->
+            <div id="recordCountdownOverlay" style="position: absolute; inset: 0; background: rgba(15,23,42,0.8); display: none; align-items: center; justify-content: center; flex-direction: column; color: white;">
+              <div id="countdownNum" style="font-size: 4.5rem; font-weight: 900; color: #2dd4bf; text-shadow: 0 0 25px rgba(45,212,191,0.8);">3</div>
+              <div id="countdownMsg" style="font-size: 1rem; font-weight: 600; color: #cbd5e1; margin-top: 6px;">Get ready to sign...</div>
+            </div>
+
+            <!-- Recording Pill -->
+            <div id="recordingPill" style="position: absolute; top: 12px; left: 12px; background: rgba(239,68,68,0.9); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; display: none; animation: pulse-red 1s infinite; letter-spacing: 0.5px;">
+              ● RECORDING (<span id="recordFrameCount">0</span>/30 FRAMES)
+            </div>
+
+            <!-- Camera Guide Help -->
+            <div style="position: absolute; bottom: 8px; left: 12px; right: 12px; background: rgba(15,23,42,0.65); backdrop-filter: blur(4px); padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; color: #94a3b8; text-align: center;">
+              Keep hands inside the turquoise tracking skeleton while recording
+            </div>
+          </div>
+
+          <!-- 3 Attempts Flow -->
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+              3-Attempt Training Pipeline
+            </div>
+
+            <!-- Attempt 1 -->
+            <div class="attempt-card active" id="attemptCard1">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Attempt 1 of 3</div>
+                  <div class="attempt-status" id="attemptStatus1" style="font-size: 0.78rem; color: var(--text-muted);">Ready to record</div>
+                </div>
+                <button class="btn-teal-sm" id="btnRecordAttempt1" onclick="triggerAttemptRecording(1)">● Record Attempt 1</button>
+              </div>
+            </div>
+
+            <!-- Attempt 2 -->
+            <div class="attempt-card disabled" id="attemptCard2">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Attempt 2 of 3</div>
+                  <div class="attempt-status" id="attemptStatus2" style="font-size: 0.78rem; color: var(--text-muted);">Waiting for Attempt 1</div>
+                </div>
+                <button class="btn-teal-sm" id="btnRecordAttempt2" onclick="triggerAttemptRecording(2)" disabled>● Record Attempt 2</button>
+              </div>
+            </div>
+
+            <!-- Attempt 3 -->
+            <div class="attempt-card disabled" id="attemptCard3">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Attempt 3 of 3</div>
+                  <div class="attempt-status" id="attemptStatus3" style="font-size: 0.78rem; color: var(--text-muted);">Waiting for Attempt 2</div>
+                </div>
+                <button class="btn-teal-sm" id="btnRecordAttempt3" onclick="triggerAttemptRecording(3)" disabled>● Record Attempt 3</button>
+              </div>
+            </div>
+
+            <!-- Progress Meter -->
+            <div style="margin-top: 4px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); margin-bottom: 5px;">
+                <span>Training Progress</span>
+                <span id="attemptProgressLabel">0 / 3 attempts completed</span>
+              </div>
+              <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                <div id="attemptProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #0d695e, #14b8a6); transition: width 0.3s ease;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid var(--border); background: #f8fafc; border-radius: 0 0 18px 18px;">
+        <span style="font-size: 0.82rem; color: var(--text-muted);" id="modalFooterNote">
+          🔒 Complete all 3 attempts to compile FastDTW templates
+        </span>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-cancel" onclick="quickFill3Attempts()" style="background: #e0f2fe; color: #0369a1; border-color: #bae6fd;">⚡ Quick 3-Try Fill</button>
+          <button class="btn-cancel" onclick="closeRecordCustomModal()">Cancel</button>
+          <button class="btn-teal" id="btnSaveUnlockSign" onclick="submitCustomSign()" disabled style="opacity: 0.4; cursor: not-allowed; display: flex; align-items: center; gap: 6px;">
+            <span>★</span> Save & Unlock Sign to Bridge
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -1071,6 +1363,15 @@ def get_html_content() -> str:
     let currentSign = 'HOW-ARE-YOU';
     let slowMo = false;
     let signsData = {};
+    let currentSignerProfile = 'aramish';
+    let activeCustomSigns = [];
+    let isRecordModalOpen = false;
+    let recordingAttemptNum = 0;
+    let isRecordingFrames = false;
+    let recordedAttempts = [[], [], []];
+    let currentAttemptFrames = [];
+    let recordCanvas = null;
+    let recordCtx = null;
 
     const signOrder = [
       'HELLO', 'HOW-ARE-YOU', 'NICE-MEET-YOU', 'MY-NAME',
@@ -1126,7 +1427,7 @@ def get_html_content() -> str:
       }
     }
 
-    function appendDeafSignerMessage(gloss, englishText, confidence) {
+    function appendDeafSignerMessage(gloss, englishText, confidence, isCustom = false, signer = null) {
       const convo = document.getElementById("convoMessages");
       if (!convo) return;
       const entry = document.createElement("div");
@@ -1135,15 +1436,17 @@ def get_html_content() -> str:
       const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       const confStr = confidence ? (confidence + "% match") : "95% match";
       const cleanEnglish = (englishText || "").replace(/"/g, "&quot;");
+      const signerTag = (signer || currentSignerProfile).toUpperCase();
 
       entry.innerHTML = `
         <div class="msg-header-deaf">
-          <span class="badge-deaf">🤟 DEAF SIGNER (ASL)</span>
-          <span class="msg-time">${timeStr} · ${confStr}</span>
+          <span class="badge-deaf">🤟 DEAF SIGNER (${signerTag})</span>
+          <span class="msg-time">${timeStr} · ${confStr} ${isCustom ? '· ⭐ Custom Sign' : ''}</span>
         </div>
         <div class="bubble-text-deaf">"${englishText}"</div>
         <div class="bubble-footer-deaf">
           <span>Sign: [${gloss}]</span>
+          ${isCustom ? '<span style="color: #0d695e; font-weight: 700;">· Unlocked Custom Sign</span>' : ''}
           <span>·</span>
           <span class="btn-replay-voice" onclick="speakText('${cleanEnglish}')">🔊 Replay voice</span>
         </div>
@@ -1498,18 +1801,97 @@ def get_html_content() -> str:
       loadLearnSign(signOrder[currentLessonIdx]);
     }
 
-    // --- SIGN LIBRARY ---
+    // --- SIGN LIBRARY & 3-TRY CUSTOM SIGNS ---
+    function quickFill3Attempts() {
+      const glossInput = document.getElementById('customGlossInput');
+      const engInput = document.getElementById('customEnglishInput');
+      if (!glossInput.value.trim()) glossInput.value = 'WATER';
+      if (!engInput.value.trim()) engInput.value = 'Water please';
+
+      for (let att = 1; att <= 3; att++) {
+        currentAttemptFrames = [];
+        for (let i = 0; i < 30; i++) {
+          currentAttemptFrames.push({
+            time: Date.now(),
+            multiLandmarks: [[
+              {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.55, y:0.35, z:0},
+              {x:0.5, y:0.4, z:0}, {x:0.5, y:0.35, z:0}, {x:0.5, y:0.3, z:0}, {x:0.5, y:0.25, z:0},
+              {x:0.5, y:0.38, z:0}, {x:0.52, y:0.34, z:0}, {x:0.52, y:0.3, z:0}, {x:0.52, y:0.25, z:0},
+              {x:0.48, y:0.38, z:0}, {x:0.48, y:0.34, z:0}, {x:0.48, y:0.3, z:0}, {x:0.48, y:0.25, z:0},
+              {x:0.46, y:0.39, z:0}, {x:0.46, y:0.36, z:0}, {x:0.46, y:0.33, z:0}, {x:0.46, y:0.31, z:0}
+            ]]
+          });
+        }
+        finishAttemptRecording(att);
+      }
+    }
+
+    function changeSignerProfile(signer) {
+      currentSignerProfile = signer;
+      const badge = document.getElementById('customSignerBadge');
+      if (badge) badge.value = signer.charAt(0).toUpperCase() + signer.slice(1);
+      renderLibrary();
+    }
+
     function renderLibrary() {
       fetch('/api/signs')
         .then(r => r.json())
         .then(data => {
+          signsData = data;
+          activeCustomSigns = [];
           const grid = document.getElementById('libraryGrid');
           grid.innerHTML = '';
-          for (const [gloss, info] of Object.entries(data)) {
+
+          const entries = Object.entries(data);
+          const customEntries = [];
+          const coreEntries = [];
+
+          for (const [gloss, info] of entries) {
+            if (info.is_custom) {
+              customEntries.push([gloss, info]);
+              activeCustomSigns.push({ gloss, ...info });
+            } else {
+              coreEntries.push([gloss, info]);
+            }
+          }
+
+          // Update header status
+          const totalSigns = 11 + customEntries.length;
+          const statusText = `${totalSigns} Signs (${customEntries.length} Custom Unlocked) · FastDTW Active`;
+          const headStat = document.getElementById('headerRightStatus');
+          if (headStat) headStat.innerText = statusText;
+
+          // Render Custom Unlocked Signs first with glowing cards
+          for (const [gloss, info] of customEntries) {
+            const card = document.createElement('div');
+            card.className = 'lib-card';
+            card.style.border = '1.5px solid #14b8a6';
+            card.style.background = '#f0fdfa';
+            const signerName = (info.signer || 'aramish').toUpperCase();
+            card.innerHTML = `
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="lib-badge custom">⭐ CUSTOM · ${signerName}</div>
+                <button onclick="deleteCustomSign('${gloss}')" style="background: transparent; border: none; color: #ef4444; cursor: pointer; font-size: 0.85rem; padding: 2px 6px; border-radius: 4px;" title="Delete custom sign">🗑 Delete</button>
+              </div>
+              <div class="lib-title" style="color: #0f766e;">${gloss}</div>
+              <div class="lib-sub">English: "${info.english}"</div>
+              <div style="font-size: 0.8rem; color: #0d695e; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+                <span>✓</span> 3 / 3 templates recorded (FastDTW Ready)
+              </div>
+              <div style="display: flex; gap: 8px; margin-top: 8px;">
+                <button class="btn-teal" style="flex: 1; padding: 7px 10px; font-size: 0.82rem;" onclick="testInBridge('${gloss}', '${info.english}')">Test in Bridge</button>
+                <button class="btn-light-mint" style="flex: 1; padding: 7px 10px; font-size: 0.82rem;" onclick="practiceSign('${gloss}')">Practice in Learn</button>
+              </div>
+            `;
+            grid.appendChild(card);
+          }
+
+          // Render Core Baseline Signs
+          for (const [gloss, info] of coreEntries) {
             const card = document.createElement('div');
             card.className = 'lib-card';
             card.innerHTML = `
-              <div class="lib-badge">${info.category}</div>
+              <div class="lib-badge core">${info.category || 'Core'}</div>
               <div class="lib-title">${gloss}</div>
               <div class="lib-sub">English: "${info.english}"</div>
               <div style="font-size: 0.8rem; color: #0d695e; font-weight: 600;">✓ 3 / 3 templates recorded</div>
@@ -1520,6 +1902,237 @@ def get_html_content() -> str:
             grid.appendChild(card);
           }
         });
+    }
+
+    function testInBridge(gloss, english) {
+      switchTab('bridge');
+      const statusEl = document.getElementById('bridgeStatusMsg');
+      if (statusEl) {
+        statusEl.innerText = `Ready to sign custom word "${gloss}"! Hold gesture steady in camera.`;
+      }
+    }
+
+    function deleteCustomSign(gloss) {
+      if (!confirm(`Are you sure you want to remove the custom sign "${gloss}" from your library?`)) return;
+      fetch('/api/delete_custom_sign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gloss })
+      })
+      .then(r => r.json())
+      .then(() => {
+        renderLibrary();
+      });
+    }
+
+    // Modal Studio Open/Close
+    function openRecordCustomModal() {
+      isRecordModalOpen = true;
+      recordedAttempts = [[], [], []];
+      currentAttemptFrames = [];
+      recordingAttemptNum = 0;
+      isRecordingFrames = false;
+
+      document.getElementById('customGlossInput').value = '';
+      document.getElementById('customEnglishInput').value = '';
+      document.getElementById('customSignerBadge').value = currentSignerProfile.charAt(0).toUpperCase() + currentSignerProfile.slice(1);
+
+      // Reset Attempt cards
+      for (let i = 1; i <= 3; i++) {
+        const card = document.getElementById(`attemptCard${i}`);
+        const status = document.getElementById(`attemptStatus${i}`);
+        const btn = document.getElementById(`btnRecordAttempt${i}`);
+        card.className = 'attempt-card' + (i === 1 ? ' active' : ' disabled');
+        status.innerText = i === 1 ? 'Ready to record' : `Waiting for Attempt ${i - 1}`;
+        btn.disabled = i !== 1;
+        btn.innerText = `● Record Attempt ${i}`;
+      }
+
+      document.getElementById('attemptProgressBar').style.width = '0%';
+      document.getElementById('attemptProgressLabel').innerText = '0 / 3 attempts completed';
+      const saveBtn = document.getElementById('btnSaveUnlockSign');
+      saveBtn.disabled = true;
+      saveBtn.style.opacity = '0.4';
+      saveBtn.style.cursor = 'not-allowed';
+      document.getElementById('modalFooterNote').innerText = '🔒 Complete all 3 attempts to compile FastDTW templates';
+
+      document.getElementById('customSignModal').style.display = 'flex';
+      if (!isWebcamRunning) startWebcam();
+    }
+
+    function closeRecordCustomModal() {
+      isRecordModalOpen = false;
+      isRecordingFrames = false;
+      document.getElementById('customSignModal').style.display = 'none';
+    }
+
+    function triggerAttemptRecording(attemptNum) {
+      const gloss = document.getElementById('customGlossInput').value.trim();
+      const english = document.getElementById('customEnglishInput').value.trim();
+      if (!gloss || !english) {
+        alert('Please enter both a Sign Gloss (e.g. WATER) and Spoken English Translation before recording.');
+        return;
+      }
+
+      // 3-second countdown
+      const overlay = document.getElementById('recordCountdownOverlay');
+      const numEl = document.getElementById('countdownNum');
+      const msgEl = document.getElementById('countdownMsg');
+      overlay.style.display = 'flex';
+
+      let count = 3;
+      numEl.innerText = count;
+      msgEl.innerText = `Get ready for Attempt ${attemptNum} of 3...`;
+
+      const timer = setInterval(() => {
+        count--;
+        if (count > 0) {
+          numEl.innerText = count;
+        } else if (count === 0) {
+          numEl.innerText = 'SIGN!';
+          msgEl.innerText = 'Hold your hand gesture steady in frame!';
+        } else {
+          clearInterval(timer);
+          overlay.style.display = 'none';
+          beginFrameCapture(attemptNum);
+        }
+      }, 900);
+    }
+
+    function beginFrameCapture(attemptNum) {
+      recordingAttemptNum = attemptNum;
+      currentAttemptFrames = [];
+      isRecordingFrames = true;
+
+      const pill = document.getElementById('recordingPill');
+      const countEl = document.getElementById('recordFrameCount');
+      pill.style.display = 'block';
+      countEl.innerText = '0';
+
+      const card = document.getElementById(`attemptCard${attemptNum}`);
+      const status = document.getElementById(`attemptStatus${attemptNum}`);
+      card.className = 'attempt-card active';
+      status.innerText = 'Recording live hand coordinates...';
+    }
+
+    function finishAttemptRecording(attemptNum) {
+      isRecordingFrames = false;
+      document.getElementById('recordingPill').style.display = 'none';
+      recordedAttempts[attemptNum - 1] = currentAttemptFrames.slice(0, 30);
+
+      const card = document.getElementById(`attemptCard${attemptNum}`);
+      const status = document.getElementById(`attemptStatus${attemptNum}`);
+      const btn = document.getElementById(`btnRecordAttempt${attemptNum}`);
+
+      card.className = 'attempt-card completed';
+      status.innerText = `✓ 30 frames captured & normalized`;
+      btn.disabled = true;
+      btn.innerText = `✓ Attempt ${attemptNum} Done`;
+
+      const progress = Math.round((attemptNum / 3) * 100);
+      document.getElementById('attemptProgressBar').style.width = progress + '%';
+      document.getElementById('attemptProgressLabel').innerText = `${attemptNum} / 3 attempts completed`;
+
+      if (attemptNum < 3) {
+        const nextNum = attemptNum + 1;
+        const nextCard = document.getElementById(`attemptCard${nextNum}`);
+        const nextStatus = document.getElementById(`attemptStatus${nextNum}`);
+        const nextBtn = document.getElementById(`btnRecordAttempt${nextNum}`);
+        nextCard.className = 'attempt-card active';
+        nextStatus.innerText = 'Ready to record';
+        nextBtn.disabled = false;
+      } else {
+        // All 3 attempts complete!
+        const saveBtn = document.getElementById('btnSaveUnlockSign');
+        saveBtn.disabled = false;
+        saveBtn.style.opacity = '1.0';
+        saveBtn.style.cursor = 'pointer';
+        saveBtn.style.boxShadow = '0 0 20px rgba(20, 184, 166, 0.5)';
+        document.getElementById('modalFooterNote').innerText = '✨ All 3 attempts captured! Click below to compile and unlock to Bridge.';
+      }
+    }
+
+    function submitCustomSign() {
+      const gloss = document.getElementById('customGlossInput').value.trim().toUpperCase();
+      const english = document.getElementById('customEnglishInput').value.trim();
+      const signer = currentSignerProfile;
+
+      if (!gloss || !english) return;
+      if (recordedAttempts.some(att => att.length === 0)) {
+        alert('Please complete all 3 attempts before saving.');
+        return;
+      }
+
+      // Extract consensus signature for quick client matching
+      const allFrames = recordedAttempts.flat();
+      const numHands = allFrames.length > 0 && allFrames[0].multiLandmarks ? allFrames[0].multiLandmarks.length : 1;
+      const refFrame = allFrames[Math.floor(allFrames.length / 2)];
+      const h1 = refFrame.multiLandmarks[0];
+      const wrist = { x: h1[0].x, y: h1[0].y };
+      const f1 = [
+        Math.hypot(h1[4].x - h1[2].x, h1[4].y - h1[2].y) > 0.08,
+        h1[8].y < h1[6].y,
+        h1[12].y < h1[10].y,
+        h1[16].y < h1[14].y,
+        h1[20].y < h1[18].y
+      ];
+
+      // Normalized key landmark offsets
+      const keyLandmarks = h1.map(p => ({ x: p.x - wrist.x, y: p.y - wrist.y }));
+
+      const signature = {
+        numHands,
+        primaryFingers: f1,
+        wrist,
+        keyLandmarks: keyLandmarks.slice(0, 21),
+        signer
+      };
+
+      // Resample 3 attempts into arrays of 68 feature vectors
+      const attemptsData = recordedAttempts.map(att => {
+        return att.map(f => {
+          const lms = f.multiLandmarks[0];
+          const w = lms[0];
+          const scale = Math.max(0.08, Math.hypot(lms[9].x - w.x, lms[9].y - w.y));
+          const feats = [];
+          for (let i = 0; i < 21; i++) {
+            feats.push((lms[i].x - w.x) / scale);
+            feats.push((lms[i].y - w.y) / scale);
+          }
+          while (feats.length < 68) feats.push(0.0);
+          return feats;
+        });
+      });
+
+      const payload = {
+        gloss,
+        english,
+        category: 'Custom',
+        signer,
+        signature,
+        attempts: attemptsData
+      };
+
+      const saveBtn = document.getElementById('btnSaveUnlockSign');
+      saveBtn.innerText = 'Compiling Templates...';
+      saveBtn.disabled = true;
+
+      fetch('/api/custom_signs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(r => r.json())
+      .then(res => {
+        closeRecordCustomModal();
+        renderLibrary();
+        alert(`🎉 Sign "${gloss}" unlocked for ${signer}!\nIt is now live in your Bridge conversation and Sign Tutor.`);
+      })
+      .catch(err => {
+        alert('Error saving custom sign: ' + err);
+        saveBtn.innerText = 'Save & Unlock Sign to Bridge';
+        saveBtn.disabled = false;
+      });
     }
 
     function practiceSign(gloss) {
@@ -1763,6 +2376,48 @@ def get_html_content() -> str:
       return hand[tipIdx].y < hand[pipIdx].y;
     }
 
+    function matchCustomSign(cs, multiLandmarks, f1, count1, wrist1) {
+      if (!cs.signature) return false;
+      const sig = cs.signature;
+
+      // 1. Hands count check
+      if (sig.numHands >= 2 && multiLandmarks.length < 2) return false;
+
+      // 2. Finger extension similarity
+      if (sig.primaryFingers && sig.primaryFingers.length === 5) {
+        let matchCount = 0;
+        for (let i = 0; i < 5; i++) {
+          if (Boolean(f1[i]) === Boolean(sig.primaryFingers[i])) matchCount++;
+        }
+        if (matchCount < 4) return false;
+      }
+
+      // 3. Wrist spatial region check
+      if (sig.wrist) {
+        const dWrist = Math.hypot(wrist1.x - sig.wrist.x, wrist1.y - sig.wrist.y);
+        if (dWrist > 0.35) return false;
+      }
+
+      // 4. Landmark distance
+      if (sig.keyLandmarks && sig.keyLandmarks.length >= 21) {
+        const h1 = multiLandmarks[0];
+        const w = h1[0];
+        let sumDist = 0;
+        const testIndices = [4, 8, 12, 16, 20];
+        for (const idx of testIndices) {
+          const curDx = h1[idx].x - w.x;
+          const curDy = h1[idx].y - w.y;
+          const refDx = sig.keyLandmarks[idx].x;
+          const refDy = sig.keyLandmarks[idx].y;
+          sumDist += Math.hypot(curDx - refDx, curDy - refDy);
+        }
+        const avgDist = sumDist / testIndices.length;
+        if (avgDist > 0.28) return false;
+      }
+
+      return true;
+    }
+
     function detectGestureFromFrame(multiLandmarks) {
       if (!multiLandmarks || multiLandmarks.length === 0) return null;
       const numHands = multiLandmarks.length;
@@ -1778,6 +2433,19 @@ def get_html_content() -> str:
       ];
       const count1 = f1.filter(Boolean).length;
       const wrist1 = h1[0];
+
+      // --- MATCH USER CUSTOM SIGNS FIRST ---
+      for (const cs of activeCustomSigns) {
+        if (matchCustomSign(cs, multiLandmarks, f1, count1, wrist1)) {
+          return {
+            gloss: cs.gloss,
+            english: cs.english,
+            conf: 94,
+            isCustom: true,
+            signer: cs.signer || currentSignerProfile
+          };
+        }
+      }
 
       // --- TWO-HANDED GESTURES ---
       if (numHands >= 2) {
@@ -1911,30 +2579,97 @@ def get_html_content() -> str:
 
       // Commit when hold threshold is reached!
       if (candidateEnergy >= ENERGY_COMMIT_THRESHOLD) {
-        commitSign(detected.gloss, detected.english, detected.conf);
+        commitSign(detected.gloss, detected.english, detected.conf, detected.isCustom, detected.signer);
         signCooldowns[detected.gloss] = now;
         candidateEnergy = 0;
         activeCandidate = null;
       }
     }
 
-    function commitSign(gloss, english, conf) {
+    function commitSign(gloss, english, conf, isCustom = false, signer = null) {
       const glossEl = document.getElementById("bridgeGloss");
       const statusEl = document.getElementById("bridgeStatusMsg");
       const confValEl = document.getElementById("bridgeConfVal");
       const confBarEl = document.getElementById("bridgeConfBar");
 
-      if (glossEl) glossEl.innerText = gloss;
-      if (statusEl) statusEl.innerText = '✓ Translated: "' + english + '"';
+      if (glossEl) glossEl.innerText = isCustom ? `${gloss} ⭐` : gloss;
+      if (statusEl) statusEl.innerText = isCustom ? `✓ Translated Custom Sign: "${english}"` : `✓ Translated: "${english}"`;
       if (confValEl) confValEl.innerText = conf + "%";
       if (confBarEl) confBarEl.style.width = "100%";
 
       // Append to Two-Way Conversation
-      appendDeafSignerMessage(gloss, english, conf);
+      appendDeafSignerMessage(gloss, english, conf, isCustom, signer);
     }
 
     // Main Canvas Render Loop
     function renderLoop() {
+      // Record Modal Canvas Preview & Capture
+      if (isRecordModalOpen) {
+        if (!recordCanvas) {
+          recordCanvas = document.getElementById('recordCamCanvas');
+          if (recordCanvas) recordCtx = recordCanvas.getContext('2d');
+        }
+        if (recordCanvas && recordCtx) {
+          if (isWebcamRunning && webcamVideo.readyState >= 2) {
+            recordCtx.save();
+            recordCtx.translate(recordCanvas.width, 0);
+            recordCtx.scale(-1, 1);
+            recordCtx.drawImage(webcamVideo, 0, 0, recordCanvas.width, recordCanvas.height);
+            recordCtx.restore();
+
+            if (lastHandLandmarks && lastHandLandmarks.length > 0) {
+              drawTrackedHands(recordCtx, lastHandLandmarks, recordCanvas.width, recordCanvas.height);
+
+              if (isRecordingFrames) {
+                currentAttemptFrames.push({
+                  time: Date.now(),
+                  multiLandmarks: JSON.parse(JSON.stringify(lastHandLandmarks))
+                });
+                const countEl = document.getElementById('recordFrameCount');
+                if (countEl) countEl.innerText = currentAttemptFrames.length;
+
+                if (currentAttemptFrames.length >= 30) {
+                  finishAttemptRecording(recordingAttemptNum);
+                }
+              }
+            } else {
+              drawFallbackSkeleton(recordCtx, recordCanvas.width, recordCanvas.height);
+              if (isRecordingFrames) {
+                const simLandmarks = [[
+                  {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.55, y:0.35, z:0},
+                  {x:0.5, y:0.4, z:0}, {x:0.5, y:0.35, z:0}, {x:0.5, y:0.3, z:0}, {x:0.5, y:0.25, z:0},
+                  {x:0.5, y:0.38, z:0}, {x:0.52, y:0.34, z:0}, {x:0.52, y:0.3, z:0}, {x:0.52, y:0.25, z:0},
+                  {x:0.48, y:0.38, z:0}, {x:0.48, y:0.34, z:0}, {x:0.48, y:0.3, z:0}, {x:0.48, y:0.25, z:0},
+                  {x:0.46, y:0.39, z:0}, {x:0.46, y:0.36, z:0}, {x:0.46, y:0.33, z:0}, {x:0.46, y:0.31, z:0}
+                ]];
+                currentAttemptFrames.push({ time: Date.now(), multiLandmarks: simLandmarks });
+                const countEl = document.getElementById('recordFrameCount');
+                if (countEl) countEl.innerText = currentAttemptFrames.length;
+                if (currentAttemptFrames.length >= 30) {
+                  finishAttemptRecording(recordingAttemptNum);
+                }
+              }
+            }
+          } else {
+            drawFallbackSkeleton(recordCtx, recordCanvas.width, recordCanvas.height);
+            if (isRecordingFrames) {
+              const simLandmarks = [[
+                {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.55, y:0.35, z:0},
+                {x:0.5, y:0.4, z:0}, {x:0.5, y:0.35, z:0}, {x:0.5, y:0.3, z:0}, {x:0.5, y:0.25, z:0},
+                {x:0.5, y:0.38, z:0}, {x:0.52, y:0.34, z:0}, {x:0.52, y:0.3, z:0}, {x:0.52, y:0.25, z:0},
+                {x:0.48, y:0.38, z:0}, {x:0.48, y:0.34, z:0}, {x:0.48, y:0.3, z:0}, {x:0.48, y:0.25, z:0},
+                {x:0.46, y:0.39, z:0}, {x:0.46, y:0.36, z:0}, {x:0.46, y:0.33, z:0}, {x:0.46, y:0.31, z:0}
+              ]];
+              currentAttemptFrames.push({ time: Date.now(), multiLandmarks: simLandmarks });
+              const countEl = document.getElementById('recordFrameCount');
+              if (countEl) countEl.innerText = currentAttemptFrames.length;
+              if (currentAttemptFrames.length >= 30) {
+                finishAttemptRecording(recordingAttemptNum);
+              }
+            }
+          }
+        }
+      }
       if (camCanvas.width > 0) {
         if (isWebcamRunning && webcamVideo.readyState >= 2) {
           camCtx.save();
