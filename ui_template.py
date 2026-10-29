@@ -2012,52 +2012,67 @@ def get_html_content() -> str:
     }
 
     function triggerAttemptRecording(attemptNum) {
-      const gloss = document.getElementById('customGlossInput').value.trim();
-      const english = document.getElementById('customEnglishInput').value.trim();
-      if (!gloss || !english) {
-        alert('Please enter both a Sign Gloss (e.g. WATER) and Spoken English Translation before recording.');
-        return;
-      }
-
-      // 3-second countdown
-      const overlay = document.getElementById('recordCountdownOverlay');
-      const numEl = document.getElementById('countdownNum');
-      const msgEl = document.getElementById('countdownMsg');
-      overlay.style.display = 'flex';
-
-      let count = 3;
-      numEl.innerText = count;
-      msgEl.innerText = `Get ready for Attempt ${attemptNum} of 3...`;
-
-      const timer = setInterval(() => {
-        count--;
-        if (count > 0) {
-          numEl.innerText = count;
-        } else if (count === 0) {
-          numEl.innerText = 'SIGN!';
-          msgEl.innerText = 'Hold your hand gesture steady in frame!';
-        } else {
-          clearInterval(timer);
-          overlay.style.display = 'none';
-          beginFrameCapture(attemptNum);
+      try {
+        const glossEl = document.getElementById('customGlossInput');
+        const englishEl = document.getElementById('customEnglishInput');
+        const gloss = glossEl ? glossEl.value.trim() : '';
+        const english = englishEl ? englishEl.value.trim() : '';
+        if (!gloss || !english) {
+          alert('Please enter both a Sign Gloss (e.g. HELLO) and Spoken English Translation before recording.');
+          return;
         }
-      }, 900);
+
+        // Ensure camera is active
+        if (!isWebcamRunning) {
+          startWebcam();
+        }
+
+        const overlay = document.getElementById('recordCountdownOverlay');
+        const numEl = document.getElementById('countdownNum');
+        const msgEl = document.getElementById('countdownMsg');
+        if (overlay) overlay.style.display = 'flex';
+
+        let count = 3;
+        if (numEl) numEl.innerText = count;
+        if (msgEl) msgEl.innerText = `Get ready for Attempt ${attemptNum} of 3...`;
+
+        const timer = setInterval(() => {
+          count--;
+          if (count > 0) {
+            if (numEl) numEl.innerText = count;
+          } else if (count === 0) {
+            if (numEl) numEl.innerText = 'SIGN!';
+            if (msgEl) msgEl.innerText = 'Hold your hand gesture steady in frame!';
+          } else {
+            clearInterval(timer);
+            if (overlay) overlay.style.display = 'none';
+            beginFrameCapture(attemptNum);
+          }
+        }, 800);
+      } catch (err) {
+        console.error('triggerAttemptRecording error:', err);
+        alert('Recording error: ' + err.message);
+      }
     }
 
     function beginFrameCapture(attemptNum) {
-      recordingAttemptNum = attemptNum;
-      currentAttemptFrames = [];
-      isRecordingFrames = true;
+      try {
+        recordingAttemptNum = attemptNum;
+        currentAttemptFrames = [];
+        isRecordingFrames = true;
 
-      const pill = document.getElementById('recordingPill');
-      const countEl = document.getElementById('recordFrameCount');
-      pill.style.display = 'block';
-      countEl.innerText = '0';
+        const pill = document.getElementById('recordingPill');
+        const countEl = document.getElementById('recordFrameCount');
+        if (pill) pill.style.display = 'block';
+        if (countEl) countEl.innerText = '0';
 
-      const card = document.getElementById(`attemptCard${attemptNum}`);
-      const status = document.getElementById(`attemptStatus${attemptNum}`);
-      card.className = 'attempt-card active';
-      status.innerText = 'Recording live hand coordinates...';
+        const card = document.getElementById(`attemptCard${attemptNum}`);
+        const status = document.getElementById(`attemptStatus${attemptNum}`);
+        if (card) card.className = 'attempt-card active';
+        if (status) status.innerText = 'Recording live hand coordinates...';
+      } catch (err) {
+        console.error('beginFrameCapture error:', err);
+      }
     }
 
     function finishAttemptRecording(attemptNum) {
