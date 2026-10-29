@@ -882,12 +882,12 @@ def get_html_content() -> str:
     }
     .modal-card {
       background: #ffffff;
-      border-radius: 18px;
-      width: 92%;
-      max-width: 820px;
-      max-height: 90vh;
+      border-radius: 20px;
+      width: 95%;
+      max-width: 1060px;
+      max-height: 92vh;
       overflow-y: auto;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.3);
       display: flex;
       flex-direction: column;
     }
@@ -1283,15 +1283,20 @@ def get_html_content() -> str:
         </div>
 
         <!-- 3-Attempt Studio Viewport -->
-        <div style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 20px; align-items: start;">
+        <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; align-items: start;">
           <!-- Camera Feed & Canvas -->
-          <div style="position: relative; background: #0f172a; border-radius: 12px; overflow: hidden; height: 300px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,0,0,0.15);">
-            <canvas id="recordCamCanvas" width="460" height="300" style="width: 100%; height: 100%; object-fit: cover;"></canvas>
+          <div style="position: relative; background: #090d16; border: 2px solid #1e293b; border-radius: 16px; overflow: hidden; height: 440px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 30px rgba(0,0,0,0.3);">
+            <canvas id="recordCamCanvas" width="640" height="440" style="width: 100%; height: 100%; object-fit: cover; display: block;"></canvas>
             
-            <!-- Countdown Overlay -->
-            <div id="recordCountdownOverlay" style="position: absolute; inset: 0; background: rgba(15,23,42,0.8); display: none; align-items: center; justify-content: center; flex-direction: column; color: white;">
-              <div id="countdownNum" style="font-size: 4.5rem; font-weight: 900; color: #2dd4bf; text-shadow: 0 0 25px rgba(45,212,191,0.8);">3</div>
-              <div id="countdownMsg" style="font-size: 1rem; font-weight: 600; color: #cbd5e1; margin-top: 6px;">Get ready to sign...</div>
+            <!-- Live Camera Badge in Modal -->
+            <div style="position: absolute; top: 12px; right: 12px; background: rgba(15,23,42,0.85); backdrop-filter: blur(8px); border: 1px solid rgba(45,212,191,0.3); padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: #2dd4bf; display: flex; align-items: center; gap: 6px; z-index: 10;">
+              <span class="pulse-dot"></span> Live Camera Active
+            </div>
+
+            <!-- Countdown Overlay (Semi-transparent so camera is clearly visible behind countdown) -->
+            <div id="recordCountdownOverlay" style="position: absolute; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(2px); display: none; align-items: center; justify-content: center; flex-direction: column; color: white; z-index: 20;">
+              <div id="countdownNum" style="font-size: 5.5rem; font-weight: 900; color: #2dd4bf; text-shadow: 0 0 35px rgba(45,212,191,0.9); line-height: 1;">3</div>
+              <div id="countdownMsg" style="font-size: 1.15rem; font-weight: 700; color: #ffffff; text-shadow: 0 2px 8px rgba(0,0,0,0.8); margin-top: 10px; background: rgba(0,0,0,0.6); padding: 6px 18px; border-radius: 20px;">Get ready to sign...</div>
             </div>
 
             <!-- Recording Pill -->
@@ -1420,7 +1425,8 @@ def get_html_content() -> str:
       } else if (tab === 'library') {
         document.querySelectorAll('.nav-tab')[2].classList.add('active');
         document.getElementById('tab-library').classList.add('active');
-        document.getElementById('headerRightStatus').innerText = '11 signs · 33 templates';
+        document.getElementById('headerRightStatus').innerText = 'Sign Library · Custom 3-Try Studio';
+        if (!isWebcamRunning) startWebcam();
         renderLibrary();
       }
     }
@@ -2002,7 +2008,11 @@ def get_html_content() -> str:
       document.getElementById('modalFooterNote').innerText = '🔒 Complete all 3 attempts to compile FastDTW templates';
 
       document.getElementById('customSignModal').style.display = 'flex';
-      if (!isWebcamRunning) startWebcam();
+      if (!isWebcamRunning) {
+        startWebcam();
+      } else if (webcamVideo && webcamVideo.paused) {
+        webcamVideo.play().catch(e => console.warn('play error:', e));
+      }
     }
 
     function closeRecordCustomModal() {
@@ -2770,62 +2780,47 @@ def get_html_content() -> str:
           if (recordCanvas) recordCtx = recordCanvas.getContext('2d');
         }
         if (recordCanvas && recordCtx) {
-          if (isWebcamRunning && webcamVideo.readyState >= 2) {
+          // 1. Draw video background whenever camera is streaming
+          if (isWebcamRunning && (webcamVideo.videoWidth > 0 || webcamVideo.readyState >= 1)) {
             recordCtx.save();
             recordCtx.translate(recordCanvas.width, 0);
             recordCtx.scale(-1, 1);
             recordCtx.drawImage(webcamVideo, 0, 0, recordCanvas.width, recordCanvas.height);
             recordCtx.restore();
-
-            if (lastHandLandmarks && lastHandLandmarks.length > 0) {
-              drawTrackedHands(recordCtx, lastHandLandmarks, recordCanvas.width, recordCanvas.height);
-
-              if (isRecordingFrames) {
-                currentAttemptFrames.push({
-                  time: Date.now(),
-                  multiLandmarks: JSON.parse(JSON.stringify(lastHandLandmarks))
-                });
-                const countEl = document.getElementById('recordFrameCount');
-                if (countEl) countEl.innerText = currentAttemptFrames.length;
-
-                if (currentAttemptFrames.length >= 30) {
-                  finishAttemptRecording(recordingAttemptNum);
-                }
-              }
-            } else {
-              drawFallbackSkeleton(recordCtx, recordCanvas.width, recordCanvas.height);
-              if (isRecordingFrames) {
-                const simLandmarks = [[
-                  {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.55, y:0.35, z:0},
-                  {x:0.5, y:0.4, z:0}, {x:0.5, y:0.35, z:0}, {x:0.5, y:0.3, z:0}, {x:0.5, y:0.25, z:0},
-                  {x:0.5, y:0.38, z:0}, {x:0.52, y:0.34, z:0}, {x:0.52, y:0.3, z:0}, {x:0.52, y:0.25, z:0},
-                  {x:0.48, y:0.38, z:0}, {x:0.48, y:0.34, z:0}, {x:0.48, y:0.3, z:0}, {x:0.48, y:0.25, z:0},
-                  {x:0.46, y:0.39, z:0}, {x:0.46, y:0.36, z:0}, {x:0.46, y:0.33, z:0}, {x:0.46, y:0.31, z:0}
-                ]];
-                currentAttemptFrames.push({ time: Date.now(), multiLandmarks: simLandmarks });
-                const countEl = document.getElementById('recordFrameCount');
-                if (countEl) countEl.innerText = currentAttemptFrames.length;
-                if (currentAttemptFrames.length >= 30) {
-                  finishAttemptRecording(recordingAttemptNum);
-                }
-              }
-            }
           } else {
             drawFallbackSkeleton(recordCtx, recordCanvas.width, recordCanvas.height);
+          }
+
+          // 2. Draw live skeletal hand tracking if detected
+          if (lastHandLandmarks && lastHandLandmarks.length > 0) {
+            drawTrackedHands(recordCtx, lastHandLandmarks, recordCanvas.width, recordCanvas.height);
+
             if (isRecordingFrames) {
-              const simLandmarks = [[
-                {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.55, y:0.35, z:0},
-                {x:0.5, y:0.4, z:0}, {x:0.5, y:0.35, z:0}, {x:0.5, y:0.3, z:0}, {x:0.5, y:0.25, z:0},
-                {x:0.5, y:0.38, z:0}, {x:0.52, y:0.34, z:0}, {x:0.52, y:0.3, z:0}, {x:0.52, y:0.25, z:0},
-                {x:0.48, y:0.38, z:0}, {x:0.48, y:0.34, z:0}, {x:0.48, y:0.3, z:0}, {x:0.48, y:0.25, z:0},
-                {x:0.46, y:0.39, z:0}, {x:0.46, y:0.36, z:0}, {x:0.46, y:0.33, z:0}, {x:0.46, y:0.31, z:0}
-              ]];
-              currentAttemptFrames.push({ time: Date.now(), multiLandmarks: simLandmarks });
+              currentAttemptFrames.push({
+                time: Date.now(),
+                multiLandmarks: JSON.parse(JSON.stringify(lastHandLandmarks))
+              });
               const countEl = document.getElementById('recordFrameCount');
               if (countEl) countEl.innerText = currentAttemptFrames.length;
+
               if (currentAttemptFrames.length >= 30) {
                 finishAttemptRecording(recordingAttemptNum);
               }
+            }
+          } else if (isRecordingFrames) {
+            // Hand momentarily lost or synthetic simulation during active frame capture
+            const simLandmarks = [[
+              {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.5, y:0.4, z:0}, {x:0.55, y:0.35, z:0},
+              {x:0.5, y:0.4, z:0}, {x:0.5, y:0.35, z:0}, {x:0.5, y:0.3, z:0}, {x:0.5, y:0.25, z:0},
+              {x:0.5, y:0.38, z:0}, {x:0.52, y:0.34, z:0}, {x:0.52, y:0.3, z:0}, {x:0.52, y:0.25, z:0},
+              {x:0.48, y:0.38, z:0}, {x:0.48, y:0.34, z:0}, {x:0.48, y:0.3, z:0}, {x:0.48, y:0.25, z:0},
+              {x:0.46, y:0.39, z:0}, {x:0.46, y:0.36, z:0}, {x:0.46, y:0.33, z:0}, {x:0.46, y:0.31, z:0}
+            ]];
+            currentAttemptFrames.push({ time: Date.now(), multiLandmarks: simLandmarks });
+            const countEl = document.getElementById('recordFrameCount');
+            if (countEl) countEl.innerText = currentAttemptFrames.length;
+            if (currentAttemptFrames.length >= 30) {
+              finishAttemptRecording(recordingAttemptNum);
             }
           }
         }
