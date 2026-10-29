@@ -26,8 +26,17 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 # Import ASL Synthesizer
-from asl_engine.synthesizer import ASLSynthesizer
-from palm_normalizer import normalize_landmarks_frame, resample_sequence
+try:
+    from asl_engine.synthesizer import ASLSynthesizer
+    synth_available = True
+except Exception as e:
+    synth_available = False
+    print(f"ℹ️ ASLSynthesizer optional mode: {e}")
+
+try:
+    from palm_normalizer import normalize_landmarks_frame, resample_sequence
+except Exception:
+    pass
 
 # --- ST-GCN Machine Learning Inference Setup ---
 import torch
@@ -64,6 +73,22 @@ except Exception as e:
     stgcn_loaded = False
     print(f"⚠️ Warning: Could not initialize ST-GCN models: {e}")
 
+# --- ASL ALPHABET ONNX MODEL (Kaggle 87k Dataset, 98.06% accuracy) ---
+try:
+    import onnxruntime as ort
+    alphabet_onnx_path = ROOT_DIR / 'models' / 'alphabet.onnx'
+    if alphabet_onnx_path.exists():
+        alphabet_ort_session = ort.InferenceSession(str(alphabet_onnx_path))
+        ALPHABET_LABELS = [chr(c) for c in range(ord('A'), ord('Z')+1)]
+        alphabet_model_loaded = True
+        print(f"✓ ASL Alphabet ONNX Model ready (26 letters, 98.06% accuracy)")
+    else:
+        alphabet_model_loaded = False
+        print("⚠️ alphabet.onnx not found in models/")
+except Exception as e:
+    alphabet_model_loaded = False
+    print(f"⚠️ Warning: Could not initialize ASL Alphabet ONNX: {e}")
+
 STATIC_DIR = ROOT_DIR / "web_static"
 VIDEO_DIR = STATIC_DIR / "videos"
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
@@ -85,7 +110,7 @@ if TENSORS_DIR.exists():
 # Sign metadata dictionary
 SIGNS_INFO = {}
 
-synth = ASLSynthesizer()
+synth = ASLSynthesizer() if synth_available else None
 
 
 
@@ -263,7 +288,9 @@ class UnifiedBridgeHandler(SimpleHTTPRequestHandler):
         except Exception:
             data = {}
 
-        if path == "/api/predict_stgcn":
+        if path == "/api/predict_alphabet":
+            self.handle_predict_alphabet(data)
+        elif path == "/api/predict_stgcn":
             self.handle_predict_stgcn(data)
         elif path == "/api/reset_sentence":
             self.handle_reset_sentence(data)
@@ -284,6 +311,9 @@ class UnifiedBridgeHandler(SimpleHTTPRequestHandler):
             self.send_json({"error": "Missing 'text' query parameter"}, 400)
             return
 
+        if not synth:
+            self.send_json({"english_text": text, "glosses": [text], "total_frames": 30, "fps": 30, "duration_sec": 1.0, "timings": [], "video_url": ""})
+            return
         try:
             res = synth.synthesize(text)
             h = hashlib.md5(text.lower().encode()).hexdigest()[:10]
@@ -320,6 +350,61 @@ class UnifiedBridgeHandler(SimpleHTTPRequestHandler):
         if stgcn_loaded:
             sentence_engine.reset()
         self.send_json({"status": "reset", "sentence": "", "raw": []})
+
+    def handle_predict_alphabet(self, data):
+        landmarks = data.get("landmarks", [])
+        handedness = data.get("handedness", "Right")
+        
+        if not alphabet_model_loaded or len(landmarks) != 21:
+            self.send_json({"letter": None, "confidence": 0.0, "top3": []})
+            return
+            
+        try:
+            wrist = landmarks[0]
+            middle_mcp = landmarks[9]
+            dx = float(middle_mcp.get('x', 0.0)) - float(wrist.get('x', 0.0))
+            dy = float(middle_mcp.get('y', 0.0)) - float(wrist.get('y', 0.0))
+            dz = float(middle_mcp.get('z', 0.0)) - float(wrist.get('z', 0.0))
+            scale = (dx*dx + dy*dy + dz*dz)**0.5 or 1e-6
+            
+            mirror = (handedness == "Left")
+            vec = np.zeros((1, 63), dtype=np.float32)
+            
+            for i, p in enumerate(landmarks):
+                x = (float(p.get('x', 0.0)) - float(wrist.get('x', 0.0))) / scale
+                y = (float(p.get('y', 0.0)) - float(wrist.get('y', 0.0))) / scale
+                z = (float(p.get('z', 0.0)) - float(wrist.get('z', 0.0))) / scale
+                if mirror:
+                    x = -x
+                vec[0, i * 3] = x
+                vec[0, i * 3 + 1] = y
+                vec[0, i * 3 + 2] = z
+                
+            input_name = alphabet_ort_session.get_inputs()[0].name
+            raw_logits = alphabet_ort_session.run(None, {input_name: vec})[0][0]
+            
+            # Numerically stable softmax
+            max_v = float(np.max(raw_logits))
+            exp_logits = np.exp(raw_logits - max_v)
+            probs = exp_logits / np.sum(exp_logits)
+            
+            top_indices = np.argsort(probs)[::-1][:3]
+            top3 = [
+                {"letter": ALPHABET_LABELS[idx], "confidence": round(float(probs[idx]) * 100, 1)}
+                for idx in top_indices
+            ]
+            
+            best_idx = int(top_indices[0])
+            best_letter = ALPHABET_LABELS[best_idx]
+            best_conf = round(float(probs[best_idx]) * 100, 1)
+            
+            self.send_json({
+                "letter": best_letter,
+                "confidence": best_conf,
+                "top3": top3
+            })
+        except Exception as e:
+            self.send_json({"letter": None, "confidence": 0.0, "error": str(e)})
 
     def handle_predict_stgcn(self, data):
         frames = data.get("frames", [])

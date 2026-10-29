@@ -1035,6 +1035,7 @@ def get_html_content() -> str:
               <span id="camBadgeText">Camera on · Ready to sign</span>
             </div>
             <div class="cam-btn-group">
+              <button id="modeToggleBtn" class="cam-action-btn" onclick="toggleBridgeInputMode()" title="Switch between Alphabet Fingerspelling and Custom Library Signs" style="background: #0f766e; border-color: #2dd4bf; color: #ffffff;">🔤 Mode: Alphabet Fingerspelling</button>
               <button id="ttsToggleBtn" class="cam-action-btn" onclick="toggleTTS()" title="Toggle voice output aloud">🔊 Voice Out: ON</button>
               <button id="camToggleBtn" class="cam-action-btn" onclick="toggleWebcam()">Stop Camera</button>
             </div>
@@ -1046,21 +1047,27 @@ def get_html_content() -> str:
             <div class="recognized-overlay">
               <div style="flex: 1; min-width: 0;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-                  <div class="rec-label" id="bridgeModelMode" style="letter-spacing: 0.5px; font-weight: 800; color: #2dd4bf;">🧠 ST-GCN NEURAL BRIDGE ACTIVE</div>
-                  <div id="bridgeSignCooldownIndicator" style="font-size: 0.72rem; color: #94a3b8;">1 Phrase at a time</div>
+                  <div class="rec-label" id="bridgeModelMode" style="letter-spacing: 0.5px; font-weight: 800; color: #2dd4bf;">🔤 ASL ALPHABET ONNX (98.1% ACCURACY)</div>
+                  <div id="bridgeSignCooldownIndicator" style="font-size: 0.72rem; color: #94a3b8;">Hold ~350ms to commit letter</div>
                 </div>
-                <div class="rec-gloss" id="bridgeGloss" style="font-size: 1.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Ready to Sign</div>
-                <div class="rec-sub-status" id="bridgeStatusMsg">Form a sign or spell letters · Words accumulate into your phrase below</div>
+                <div class="rec-gloss" id="bridgeGloss" style="font-size: 1.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Ready to Spell</div>
+                <div class="rec-sub-status" id="bridgeStatusMsg">Spell letters A-Z · Drop hand to space · Click Send & Speak for voice</div>
                 
-                <!-- Live Phrase Tray -->
-                <div id="phraseTrayBox" style="margin-top: 10px; background: rgba(15, 23, 42, 0.75); border: 1.5px solid rgba(45, 212, 191, 0.3); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                  <div style="display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1;">
-                    <span style="font-size: 0.75rem; font-weight: 700; color: #2dd4bf; text-transform: uppercase;">Phrase:</span>
-                    <span id="currentPhraseText" style="font-size: 0.95rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">(None yet)</span>
-                  </div>
-                  <div style="display: flex; gap: 6px; flex-shrink: 0;">
-                    <button class="btn-teal-sm" id="btnSpeakSendPhrase" onclick="commitCurrentPhrase(true)" style="background: #0d695e; padding: 5px 10px; font-size: 0.78rem; border-radius: 6px;" title="Send and speak current phrase">Send & Speak</button>
-                    <button class="btn-cancel" onclick="clearCurrentPhrase()" style="padding: 5px 8px; font-size: 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.1); color: #cbd5e1; border: none;" title="Clear phrase">Clear</button>
+                <!-- Live Word & Sentence Builder Tray -->
+                <div id="phraseTrayBox" style="margin-top: 10px; background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(45, 212, 191, 0.4); border-radius: 10px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+                      <span style="font-size: 0.72rem; font-weight: 800; color: #2dd4bf; text-transform: uppercase; letter-spacing: 0.5px;">Spelling Word:</span>
+                      <span id="currentWordBadge" style="background: #0f766e; color: #ffffff; padding: 2px 10px; border-radius: 6px; font-size: 0.95rem; font-weight: 800; letter-spacing: 1px;">_</span>
+                      <span style="font-size: 0.72rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-left: 8px;">Sentence:</span>
+                      <span id="currentPhraseText" style="font-size: 0.95rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">(Empty)</span>
+                    </div>
+                    <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                      <button class="btn-teal-sm" onclick="manualWordSpace()" style="background: rgba(255,255,255,0.12); padding: 5px 9px; font-size: 0.75rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); color: #e2e8f0;" title="Insert space between words">␣ Space</button>
+                      <button class="btn-cancel" onclick="manualBackspaceLetter()" style="padding: 5px 8px; font-size: 0.75rem; border-radius: 6px; background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4);" title="Delete last letter">⌫ Del</button>
+                      <button class="btn-teal-sm" id="btnSpeakSendPhrase" onclick="commitCurrentSentence(true)" style="background: #0d695e; padding: 5px 12px; font-size: 0.78rem; font-weight: 800; border-radius: 6px; display: flex; align-items: center; gap: 4px;" title="Speak sentence out loud and post to conversation">🔊 Speak & Send</button>
+                      <button class="btn-cancel" onclick="clearCurrentSentence()" style="padding: 5px 8px; font-size: 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.1); color: #cbd5e1; border: none;" title="Clear entire sentence">Clear</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2567,130 +2574,267 @@ def get_html_content() -> str:
       clearCurrentPhrase();
     }
 
-    // Process live frame coordinates into ST-GCN canonical (63 or 126 dims)
-    function processLandmarksForSTGCN(multiLandmarks) {
-      if (!multiLandmarks || multiLandmarks.length === 0) return null;
-      let rightCoords = new Array(63).fill(0.0);
-      let leftCoords = new Array(63).fill(0.0);
+            // =========================================================================
+    // SMART ASL ALPHABET WORD & SENTENCE BUFFER ENGINE (98.06% ACCURATE ONNX)
+    // =========================================================================
+    let bridgeInputMode = 'alphabet'; // 'alphabet' or 'library'
+    let currentSpellingWord = '';
+    let currentSentenceWords = [];
+    let isAlphabetBusy = false;
+    let lastAlphabetCallTime = 0;
 
-      // MediaPipe sends array of hands
-      for (let i = 0; i < multiLandmarks.length; i++) {
-        const h = multiLandmarks[i];
-        const wrist = h[0];
-        const coords = [];
-        for (let j = 0; j < h.length; j++) {
-          coords.push(h[j].x - wrist.x);
-          coords.push(h[j].y - wrist.y);
-          coords.push(h[j].z - wrist.z);
-        }
-        if (i === 0) {
-          rightCoords = coords;
-        } else if (i === 1) {
-          leftCoords = coords;
-        }
-      }
+    // Word Buffer State Machine variables
+    let alphabetDwellCandidate = null;
+    let alphabetDwellSince = 0;
+    let alphabetLockedLetter = null;
+    let alphabetLastHandSeen = 0;
 
-      if (multiLandmarks.length >= 2) {
-        return rightCoords.concat(leftCoords); // 126 features
+    const STABLE_HOLD_MS = 350;         // Letter hold dwell time (350ms)
+    const HAND_ABSENT_TIMEOUT_MS = 900; // Hand drop timeout -> commits word
+    const LETTER_RELEASE_MS = 250;       // Hand drop to release duplicate letter
+
+    function toggleBridgeInputMode() {
+      if (bridgeInputMode === 'alphabet') {
+        bridgeInputMode = 'library';
+        const btn = document.getElementById('modeToggleBtn');
+        if (btn) {
+          btn.innerText = '⭐ Mode: Custom Sign Library';
+          btn.style.background = '#4338ca';
+          btn.style.borderColor = '#818cf8';
+        }
+        const modeEl = document.getElementById('bridgeModelMode');
+        if (modeEl) modeEl.innerText = '⭐ CUSTOM SIGN LIBRARY MODE';
+        const ind = document.getElementById('bridgeSignCooldownIndicator');
+        if (ind) ind.innerText = 'User-taught library signs';
+        const glossEl = document.getElementById('bridgeGloss');
+        if (glossEl) glossEl.innerText = 'Ready for Custom Signs';
+        const statusEl = document.getElementById('bridgeStatusMsg');
+        if (statusEl) statusEl.innerText = 'Perform signs taught in your Sign Library tab';
+      } else {
+        bridgeInputMode = 'alphabet';
+        const btn = document.getElementById('modeToggleBtn');
+        if (btn) {
+          btn.innerText = '🔤 Mode: Alphabet Fingerspelling';
+          btn.style.background = '#0f766e';
+          btn.style.borderColor = '#2dd4bf';
+        }
+        const modeEl = document.getElementById('bridgeModelMode');
+        if (modeEl) modeEl.innerText = '🔤 ASL ALPHABET ONNX (98.1% ACCURACY)';
+        const ind = document.getElementById('bridgeSignCooldownIndicator');
+        if (ind) ind.innerText = 'Hold ~350ms to commit letter';
+        const glossEl = document.getElementById('bridgeGloss');
+        if (glossEl) glossEl.innerText = 'Ready to Spell';
+        const statusEl = document.getElementById('bridgeStatusMsg');
+        if (statusEl) statusEl.innerText = 'Spell letters A-Z · Drop hand to space · Speak & Send';
       }
-      return rightCoords; // 63 features
     }
 
-    async function sendSTGCNInference(frames, handCount) {
-      if (isStgcnBusy) return;
-      isStgcnBusy = true;
+    function updateSentenceTrayUI() {
+      const wordBadge = document.getElementById('currentWordBadge');
+      if (wordBadge) {
+        wordBadge.innerText = currentSpellingWord ? currentSpellingWord : '_';
+      }
+      const phraseEl = document.getElementById('currentPhraseText');
+      if (phraseEl) {
+        let full = currentSentenceWords.join(' ');
+        if (currentSpellingWord) {
+          full = (full ? (full + ' ') : '') + currentSpellingWord;
+        }
+        phraseEl.innerText = full ? full : '(Empty)';
+      }
+    }
+
+    function manualWordSpace() {
+      if (currentSpellingWord.trim()) {
+        currentSentenceWords.push(currentSpellingWord.trim());
+        const committedWord = currentSpellingWord.trim();
+        currentSpellingWord = '';
+        alphabetLockedLetter = null;
+        alphabetDwellCandidate = null;
+        updateSentenceTrayUI();
+        const statusEl = document.getElementById('bridgeStatusMsg');
+        if (statusEl) statusEl.innerText = '␣ Word finished: ' + committedWord + ' | Sentence: ' + currentSentenceWords.join(' ');
+      }
+    }
+
+    function manualBackspaceLetter() {
+      if (currentSpellingWord.length > 0) {
+        currentSpellingWord = currentSpellingWord.slice(0, -1);
+      } else if (currentSentenceWords.length > 0) {
+        currentSpellingWord = currentSentenceWords.pop();
+      }
+      alphabetLockedLetter = null;
+      alphabetDwellCandidate = null;
+      updateSentenceTrayUI();
+    }
+
+    function clearCurrentSentence() {
+      currentSpellingWord = '';
+      currentSentenceWords = [];
+      alphabetLockedLetter = null;
+      alphabetDwellCandidate = null;
+      updateSentenceTrayUI();
+      const statusEl = document.getElementById('bridgeStatusMsg');
+      if (statusEl) statusEl.innerText = 'Sentence cleared. Spell new words with hand signs.';
+    }
+
+    function commitCurrentSentence(manualClick = true) {
+      if (currentSpellingWord.trim()) {
+        currentSentenceWords.push(currentSpellingWord.trim());
+        currentSpellingWord = '';
+      }
+      const sentence = currentSentenceWords.join(' ').trim();
+      if (!sentence) return;
+
+      appendDeafSignerMessage(sentence, sentence, 98, false, currentSignerProfile);
+
+      const statusEl = document.getElementById('bridgeStatusMsg');
+      if (statusEl) statusEl.innerText = '✓ Spoken out loud: ' + sentence;
+
+      currentSentenceWords = [];
+      currentSpellingWord = '';
+      alphabetLockedLetter = null;
+      alphabetDwellCandidate = null;
+      updateSentenceTrayUI();
+    }
+
+    async function sendAlphabetInference(landmarks, handedness = 'Right') {
+      if (isAlphabetBusy) return;
+      isAlphabetBusy = true;
       try {
-        const resp = await fetch('/api/predict_stgcn', {
+        const resp = await fetch('/api/predict_alphabet', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            frames: frames,
-            hand_count: handCount,
-            velocity: 0.01
+            landmarks: landmarks,
+            handedness: handedness
           })
         });
         const data = await resp.json();
-        handleSTGCNResponse(data);
+        handleAlphabetPrediction(data);
       } catch (err) {
-        console.error("STGCN request error:", err);
+        console.error('Alphabet inference error:', err);
       } finally {
-        isStgcnBusy = false;
+        isAlphabetBusy = false;
       }
     }
 
-    function handleSTGCNResponse(data) {
-      if (!data) return;
-      const glossEl = document.getElementById("bridgeGloss");
-      const statusEl = document.getElementById("bridgeStatusMsg");
-      const confValEl = document.getElementById("bridgeConfVal");
-      const confBarEl = document.getElementById("bridgeConfBar");
-      const phraseEl = document.getElementById("currentPhraseText");
-      const modeEl = document.getElementById("bridgeModelMode");
-      const energyLabel = document.getElementById("bridgeEnergyLabel");
+    function handleAlphabetPrediction(data) {
+      if (!data || !data.letter) return;
+      const now = performance.now();
+      const letter = data.letter.toUpperCase();
+      const conf = data.confidence || 0.0;
 
-      if (modeEl && data.mode) modeEl.innerText = `🧠 ${data.mode}`;
+      const glossEl = document.getElementById('bridgeGloss');
+      const statusEl = document.getElementById('bridgeStatusMsg');
+      const confValEl = document.getElementById('bridgeConfVal');
+      const confBarEl = document.getElementById('bridgeConfBar');
+      const energyLabel = document.getElementById('bridgeEnergyLabel');
 
-      // Update energy / confidence bar
-      const energyPct = Math.round((data.energy_ratio || 0.0) * 100);
-      if (confBarEl) confBarEl.style.width = energyPct + "%";
-      if (confValEl) confValEl.innerText = (data.confidence > 0 ? (data.confidence + "%") : "--");
-      if (energyLabel) energyLabel.innerText = energyPct > 0 ? `Hold: ${energyPct}%` : "Hold steady";
+      if (confValEl) confValEl.innerText = conf + '%';
 
-      if (data.candidate) {
-        if (glossEl) glossEl.innerText = data.candidate;
-        if (statusEl) statusEl.innerText = `Holding "${data.candidate}" (${energyPct}% hold)...`;
+      // Require >= 60% confidence from the ONNX model
+      if (conf < 60) {
+        if (confBarEl) confBarEl.style.width = '10%';
+        if (energyLabel) energyLabel.innerText = 'Hold hand steady';
+        return;
       }
 
-      // When SentenceEngine commits a clean word/letter
-      if (data.committed_word) {
-        if (!accumulatedWords.includes(data.committed_word)) {
-          accumulatedWords.push(data.committed_word);
+      // Check letter lock: do not re-commit same letter if user is still holding it
+      if (alphabetLockedLetter === letter) {
+        if (glossEl) glossEl.innerText = letter;
+        if (confBarEl) confBarEl.style.width = '100%';
+        if (energyLabel) energyLabel.innerText = 'Locked: ' + letter;
+        if (statusEl) statusEl.innerText = 'Letter ' + letter + ' added · Change sign or drop hand';
+        return;
+      }
+
+      // Dwell state machine
+      if (alphabetDwellCandidate === letter) {
+        const elapsed = now - alphabetDwellSince;
+        const ratio = Math.min(1.0, elapsed / STABLE_HOLD_MS);
+        const pct = Math.round(ratio * 100);
+
+        if (confBarEl) confBarEl.style.width = pct + '%';
+        if (energyLabel) energyLabel.innerText = 'Hold: ' + pct + '%';
+        if (glossEl) glossEl.innerText = letter;
+        if (statusEl) statusEl.innerText = 'Holding letter ' + letter + ' (' + pct + '%)...';
+
+        if (elapsed >= STABLE_HOLD_MS) {
+          // Commit letter to current word!
+          currentSpellingWord += letter;
+          alphabetLockedLetter = letter;
+          alphabetDwellCandidate = null;
+
+          if (confBarEl) confBarEl.style.width = '100%';
+          if (energyLabel) energyLabel.innerText = 'Added: ' + letter;
+          if (statusEl) statusEl.innerText = '✓ Added ' + letter + '! Current word: ' + currentSpellingWord;
+          updateSentenceTrayUI();
         }
-        currentAccumulatedPhrase = data.current_phrase || accumulatedWords.join(" ");
-        if (phraseEl) phraseEl.innerText = currentAccumulatedPhrase;
-        if (statusEl) statusEl.innerText = `✓ Added "${data.committed_word}" to phrase!`;
-
-        // Reset auto-send timer (pause 2 seconds after signing to send entire phrase)
-        if (autoSendTimeout) clearTimeout(autoSendTimeout);
-        autoSendTimeout = setTimeout(() => {
-          if (currentAccumulatedPhrase.trim()) {
-            commitCurrentPhrase(false);
-          }
-        }, 2200);
+      } else {
+        // New tentative letter
+        alphabetDwellCandidate = letter;
+        alphabetDwellSince = now;
+        if (glossEl) glossEl.innerText = letter;
+        if (confBarEl) confBarEl.style.width = '20%';
+        if (energyLabel) energyLabel.innerText = 'Starting hold...';
+        if (statusEl) statusEl.innerText = 'Detected ' + letter + '... hold steady';
       }
     }
 
+    // Main Analysis Entrypoint
     function analyzeSignGesture(multiLandmarks) {
-      if (activeTab !== "bridge") return;
-      const now = Date.now();
+      if (activeTab !== 'bridge') return;
+      const now = performance.now();
 
-      const glossEl = document.getElementById("bridgeGloss");
-      const statusEl = document.getElementById("bridgeStatusMsg");
-      const confValEl = document.getElementById("bridgeConfVal");
-      const confBarEl = document.getElementById("bridgeConfBar");
-      const phraseEl = document.getElementById("currentPhraseText");
-      const modeEl = document.getElementById("bridgeModelMode");
-      const energyLabel = document.getElementById("bridgeEnergyLabel");
+      const glossEl = document.getElementById('bridgeGloss');
+      const statusEl = document.getElementById('bridgeStatusMsg');
+      const confValEl = document.getElementById('bridgeConfVal');
+      const confBarEl = document.getElementById('bridgeConfBar');
+      const energyLabel = document.getElementById('bridgeEnergyLabel');
 
-      // Check if hands disappeared: reset holding state and trigger auto-send after dropping hands
+      // Hand disappeared: check for word ending or letter release
       if (!multiLandmarks || multiLandmarks.length === 0) {
-        activeCandidate = null;
-        candidateEnergy = 0;
-        if (confBarEl) confBarEl.style.width = "0%";
-        if (confValEl) confValEl.innerText = "--";
-        if (energyLabel) energyLabel.innerText = "Hold steady";
-        if (now - lastHandSeenTime > 1500 && currentAccumulatedPhrase.trim()) {
-          commitCurrentPhrase(false);
+        alphabetDwellCandidate = null;
+        if (confBarEl) confBarEl.style.width = '0%';
+        if (confValEl) confValEl.innerText = '--';
+        if (energyLabel) energyLabel.innerText = 'Hold steady';
+
+        if (alphabetLastHandSeen > 0) {
+          const absenceDuration = now - alphabetLastHandSeen;
+
+          // If absent for letterReleaseMs, unlock letter so user can sign double letters (e.g. LL)
+          if (absenceDuration >= LETTER_RELEASE_MS) {
+            alphabetLockedLetter = null;
+          }
+
+          // If absent for handAbsentTimeoutMs and we have a word, commit word with a space
+          if (absenceDuration >= HAND_ABSENT_TIMEOUT_MS && currentSpellingWord) {
+            const finishedWord = currentSpellingWord;
+            currentSentenceWords.push(finishedWord);
+            currentSpellingWord = '';
+            alphabetLastHandSeen = 0;
+            updateSentenceTrayUI();
+            if (statusEl) statusEl.innerText = '␣ Word finished: ' + finishedWord + ' | Sentence: ' + currentSentenceWords.join(' ');
+          }
         }
         return;
       }
-      lastHandSeenTime = now;
+      alphabetLastHandSeen = now;
 
-      // --- 1. PRIORITY 1: CUSTOM SIGN MATCHING (From User-Taught Sign Library) ---
-      if (activeCustomSigns && activeCustomSigns.length > 0) {
+      // -------------------------------------------------------------
+      // MODE 1: CUSTOM SIGN LIBRARY (Exact User-Taught Signs Only)
+      // -------------------------------------------------------------
+      if (bridgeInputMode === 'library') {
+        if (!activeCustomSigns || activeCustomSigns.length === 0) {
+          if (glossEl) glossEl.innerText = 'Library Empty';
+          if (statusEl) statusEl.innerText = '0 custom signs taught. Go to Sign Library tab to record a sign!';
+          if (confBarEl) confBarEl.style.width = '0%';
+          return;
+        }
+
         let bestCustomMatch = null;
         let bestConf = 0;
-
         for (const cs of activeCustomSigns) {
           const res = matchCustomSign(cs, multiLandmarks);
           if (res.matched && res.confidence > bestConf) {
@@ -2700,12 +2844,10 @@ def get_html_content() -> str:
         }
 
         if (bestCustomMatch) {
-          if (modeEl) modeEl.innerText = "⭐ Custom Sign Engine";
           const gloss = bestCustomMatch.gloss;
           const english = bestCustomMatch.english;
 
-          // Check cooldown to avoid double firing
-          if (!signCooldowns[gloss] || now - signCooldowns[gloss] > COOLDOWN_MS) {
+          if (!signCooldowns[gloss] || Date.now() - signCooldowns[gloss] > COOLDOWN_MS) {
             if (activeCandidate === gloss) {
               candidateEnergy++;
             } else {
@@ -2716,58 +2858,42 @@ def get_html_content() -> str:
             const energyRatio = Math.min(1.0, candidateEnergy / ENERGY_COMMIT_THRESHOLD);
             const energyPct = Math.round(energyRatio * 100);
 
-            if (confBarEl) confBarEl.style.width = energyPct + "%";
-            if (confValEl) confValEl.innerText = bestConf + "%";
-            if (energyLabel) energyLabel.innerText = `Hold: ${energyPct}%`;
+            if (confBarEl) confBarEl.style.width = energyPct + '%';
+            if (confValEl) confValEl.innerText = bestConf + '%';
+            if (energyLabel) energyLabel.innerText = 'Hold: ' + energyPct + '%';
             if (glossEl) glossEl.innerText = gloss;
-            if (statusEl) statusEl.innerText = `Holding custom sign "${gloss}" (${energyPct}% hold)...`;
+            if (statusEl) statusEl.innerText = 'Holding custom sign ' + gloss + ' (' + energyPct + '% hold)...';
 
-            // Commit sign when held steady at apex
             if (candidateEnergy >= ENERGY_COMMIT_THRESHOLD) {
-              signCooldowns[gloss] = now;
+              signCooldowns[gloss] = Date.now();
               candidateEnergy = 0;
               activeCandidate = null;
 
-              if (!accumulatedWords.includes(gloss)) {
-                accumulatedWords.push(gloss);
-              }
-              currentAccumulatedPhrase = accumulatedWords.join(" ");
-              if (phraseEl) phraseEl.innerText = currentAccumulatedPhrase;
-              if (statusEl) statusEl.innerText = `✓ Confirmed "${gloss}" (${english})!`;
+              currentSentenceWords.push(gloss);
+              updateSentenceTrayUI();
+              if (statusEl) statusEl.innerText = '✓ Confirmed ' + gloss + ' (' + english + ')!';
 
-              // Send committed custom sign to bridge chat & speak aloud
               appendDeafSignerMessage(gloss, english, bestConf, true, bestCustomMatch.signer || currentSignerProfile);
-
-              // Auto-clear tray after 2 seconds of pause
-              if (autoSendTimeout) clearTimeout(autoSendTimeout);
-              autoSendTimeout = setTimeout(() => {
-                clearCurrentPhrase();
-              }, 2200);
             }
           }
-          return; // Custom sign handled, do not run background ST-GCN on this frame
         } else {
-          // Hand present but not matching custom sign apex: decay energy smoothly
           if (candidateEnergy > 0) {
             candidateEnergy--;
             const energyPct = Math.round((candidateEnergy / ENERGY_COMMIT_THRESHOLD) * 100);
-            if (confBarEl) confBarEl.style.width = energyPct + "%";
+            if (confBarEl) confBarEl.style.width = energyPct + '%';
           }
         }
+        return;
       }
 
-      // --- 2. PRIORITY 2: ST-GCN NEURAL NETWORK (Fallback for Baseline Vocabulary) ---
-      const frameCoords = processLandmarksForSTGCN(multiLandmarks);
-      if (frameCoords) {
-        stgcnFrameBuffer.push(frameCoords);
-        if (stgcnFrameBuffer.length > STGCN_WINDOW_SIZE) {
-          stgcnFrameBuffer.shift();
-        }
-      }
-
-      if (now - lastStgcnCallTime > 90 && stgcnFrameBuffer.length >= 15) {
-        lastStgcnCallTime = now;
-        sendSTGCNInference(stgcnFrameBuffer, multiLandmarks.length);
+      // -------------------------------------------------------------
+      // MODE 2: HIGH-ACCURACY ASL ALPHABET ONNX (98.06% Kaggle Model)
+      // -------------------------------------------------------------
+      if (now - lastAlphabetCallTime > 110) {
+        lastAlphabetCallTime = now;
+        // MediaPipe sends first hand
+        const primaryHand = multiLandmarks[0];
+        sendAlphabetInference(primaryHand, 'Right');
       }
     }
 
