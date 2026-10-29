@@ -1181,8 +1181,8 @@ def get_html_content() -> str:
         <div class="learn-card">
           <div class="learn-card-title">WATCH THE AVATAR</div>
           <div class="avatar-learn-screen">
-            <video id="learnAvatarVideo" controls autoplay loop playsinline>
-              <source src="/static/videos/sign_a066814783.mp4" type="video/mp4">
+            <video id="learnAvatarVideo" controls autoplay loop muted playsinline>
+              <source src="/static/videos/sign_655549fcf0.mp4" type="video/mp4">
             </video>
           </div>
           <div class="learn-actions">
@@ -1684,10 +1684,11 @@ def get_html_content() -> str:
         const data = await resp.json();
         if (data.video_url) {
           const v = document.getElementById("learnAvatarVideo");
+          v.muted = true;
           v.src = data.video_url;
           v.playbackRate = slowMo ? 0.5 : 1.0;
           v.load();
-          v.play();
+          v.play().catch(e => console.log('Avatar play:', e));
         }
       } catch (err) {
         console.error("Synthesize error:", err);
@@ -1720,10 +1721,11 @@ def get_html_content() -> str:
         .then(data => {
           if (data.video_url) {
             const v = document.getElementById("learnAvatarVideo");
+            v.muted = true;
             v.src = data.video_url;
             v.playbackRate = slowMo ? 0.5 : 1.0;
             v.load();
-            v.play();
+            v.play().catch(e => console.log('Avatar play:', e));
           }
         });
     }
