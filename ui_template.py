@@ -2602,8 +2602,9 @@ def get_html_content() -> str:
     let alphabetLastHandSeen = 0;
 
     const STABLE_HOLD_MS = 350;         // Letter hold dwell time (350ms)
+    const POST_COMMIT_PAUSE_MS = 550;   // Grace period after letter committed: ignore accidental repeats
     const HAND_ABSENT_TIMEOUT_MS = 900; // Hand drop timeout -> commits word
-    const LETTER_RELEASE_MS = 250;       // Hand drop to release duplicate letter
+    const LETTER_RELEASE_MS = 200;      // Brief hand drop/bounce to spell double letter (e.g. LL)
 
     function toggleBridgeInputMode() {
       if (bridgeInputMode === 'alphabet') {
@@ -2753,35 +2754,24 @@ def get_html_content() -> str:
         return;
       }
 
-      // Natural ASL Double-Letter Dwell System:
-      // If the letter is locked, require a deliberate 700ms continuous hold to re-commit the same letter (like in HELLO or BOOK)
-      const REPEAT_LETTER_HOLD_MS = 700;
-
+      // STRICT SINGLE LETTER LOCK:
+      // Once letter is added, it is permanently locked until user switches to another sign or drops hand.
+      // It will NEVER repeat accidentally just by keeping hand in frame!
       if (alphabetLockedLetter === letter) {
-        const repeatElapsed = now - alphabetLockedSince;
-        const repeatRatio = Math.min(1.0, repeatElapsed / REPEAT_LETTER_HOLD_MS);
-        const repeatPct = Math.round(repeatRatio * 100);
-
         if (glossEl) glossEl.innerText = letter;
-
-        if (repeatElapsed < REPEAT_LETTER_HOLD_MS) {
-          if (confBarEl) confBarEl.style.width = repeatPct + '%';
-          if (energyLabel) energyLabel.innerText = 'Hold for double: ' + repeatPct + '%';
-          if (statusEl) statusEl.innerText = 'Keep holding ' + letter + ' to repeat letter (' + repeatPct + '%)... or switch sign';
-          return;
-        } else {
-          // Double-letter hold satisfied! Re-commit the duplicate letter
-          currentSpellingWord += letter;
-          alphabetLockedSince = now; // reset timer for possible 3rd repeat
-          if (confBarEl) confBarEl.style.width = '100%';
-          if (energyLabel) energyLabel.innerText = 'Double: ' + letter;
-          if (statusEl) statusEl.innerText = '✓ Repeated letter ' + letter + '! Word: ' + currentSpellingWord;
-          updateSentenceTrayUI();
-          return;
-        }
+        if (confBarEl) confBarEl.style.width = '100%';
+        if (energyLabel) energyLabel.innerText = 'Locked: ' + letter;
+        if (statusEl) statusEl.innerText = '✓ ' + letter + ' locked in · Form next sign or dip hand to repeat ' + letter;
+        return;
       }
 
-      // Switching to a different letter releases any prior lock immediately
+      // If a letter was just committed within POST_COMMIT_PAUSE_MS, give user time to transition
+      if (now - alphabetLockedSince < POST_COMMIT_PAUSE_MS) {
+        if (energyLabel) energyLabel.innerText = 'Transitioning...';
+        return;
+      }
+
+      // Switched to a new letter: clear lock immediately
       alphabetLockedLetter = null;
 
       // Dwell state machine for new letter
