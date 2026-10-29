@@ -1,0 +1,665 @@
+{
+  "schema": "svb.avatar.animation.v1",
+  "label": "DEMO_WAVE_NOT_ASL",
+  "angle_unit": "degrees",
+  "coordinate_system": "rig_joint_angles",
+  "verified_by_asl_reviewer": false,
+  "keyframes": [
+    {
+      "time_ms": 0,
+      "pose": {
+        "schema": "svb.avatar.pose.v1",
+        "arms": {
+          "left": {
+            "shoulder": {
+              "x": -12,
+              "y": 0,
+              "z": 19
+            },
+            "elbow": {
+              "flex": 12
+            },
+            "wrist": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0.08,
+                "spread": 0
+              }
+            }
+          },
+          "right": {
+            "shoulder": {
+              "x": -12,
+              "y": 0,
+              "z": -19
+            },
+            "elbow": {
+              "flex": 12
+            },
+            "wrist": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0.08,
+                "spread": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "time_ms": 520,
+      "pose": {
+        "schema": "svb.avatar.pose.v1",
+        "arms": {
+          "left": {
+            "shoulder": {
+              "x": -12,
+              "y": 0,
+              "z": 19
+            },
+            "elbow": {
+              "flex": 12
+            },
+            "wrist": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0.08,
+                "spread": 0
+              }
+            }
+          },
+          "right": {
+            "shoulder": {
+              "x": -45,
+              "y": 0,
+              "z": -40
+            },
+            "elbow": {
+              "flex": 110
+            },
+            "wrist": {
+              "x": -18,
+              "y": 0,
+              "z": 0
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0,
+                "spread": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "time_ms": 820,
+      "pose": {
+        "schema": "svb.avatar.pose.v1",
+        "arms": {
+          "left": {
+            "shoulder": {
+              "x": -12,
+              "y": 0,
+              "z": 19
+            },
+            "elbow": {
+              "flex": 12
+            },
+            "wrist": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0.08,
+                "spread": 0
+              }
+            }
+          },
+          "right": {
+            "shoulder": {
+              "x": -45,
+              "y": 0,
+              "z": -40
+            },
+            "elbow": {
+              "flex": 110
+            },
+            "wrist": {
+              "x": -18,
+              "y": 0,
+              "z": -29
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0,
+                "spread": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "time_ms": 1150,
+      "pose": {
+        "schema": "svb.avatar.pose.v1",
+        "arms": {
+          "left": {
+            "shoulder": {
+              "x": -12,
+              "y": 0,
+              "z": 19
+            },
+            "elbow": {
+              "flex": 12
+            },
+            "wrist": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0.08,
+                "spread": 0
+              }
+            }
+          },
+          "right": {
+            "shoulder": {
+              "x": -45,
+              "y": 0,
+              "z": -40
+            },
+            "elbow": {
+              "flex": 110
+            },
+            "wrist": {
+              "x": -18,
+              "y": 0,
+              "z": 29
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0,
+                "spread": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "time_ms": 1480,
+      "pose": {
+        "schema": "svb.avatar.pose.v1",
+        "arms": {
+          "left": {
+            "shoulder": {
+              "x": -12,
+              "y": 0,
+              "z": 19
+            },
+            "elbow": {
+              "flex": 12
+            },
+            "wrist": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0.08,
+                "spread": 0
+              }
+            }
+          },
+          "right": {
+            "shoulder": {
+              "x": -45,
+              "y": 0,
+              "z": -40
+            },
+            "elbow": {
+              "flex": 110
+            },
+            "wrist": {
+              "x": -18,
+              "y": 0,
+              "z": -29
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0,
+                "spread": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "time_ms": 1810,
+      "pose": {
+        "schema": "svb.avatar.pose.v1",
+        "arms": {
+          "left": {
+            "shoulder": {
+              "x": -12,
+              "y": 0,
+              "z": 19
+            },
+            "elbow": {
+              "flex": 12
+            },
+            "wrist": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0.08,
+                "spread": 0
+              }
+            }
+          },
+          "right": {
+            "shoulder": {
+              "x": -45,
+              "y": 0,
+              "z": -40
+            },
+            "elbow": {
+              "flex": 110
+            },
+            "wrist": {
+              "x": -18,
+              "y": 0,
+              "z": 29
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0,
+                "spread": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "time_ms": 2220,
+      "pose": {
+        "schema": "svb.avatar.pose.v1",
+        "arms": {
+          "left": {
+            "shoulder": {
+              "x": -12,
+              "y": 0,
+              "z": 19
+            },
+            "elbow": {
+              "flex": 12
+            },
+            "wrist": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0.08,
+                "spread": 0
+              }
+            }
+          },
+          "right": {
+            "shoulder": {
+              "x": -45,
+              "y": 0,
+              "z": -40
+            },
+            "elbow": {
+              "flex": 110
+            },
+            "wrist": {
+              "x": -18,
+              "y": 0,
+              "z": 0
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0,
+                "spread": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "time_ms": 2770,
+      "pose": {
+        "schema": "svb.avatar.pose.v1",
+        "arms": {
+          "left": {
+            "shoulder": {
+              "x": -12,
+              "y": 0,
+              "z": 19
+            },
+            "elbow": {
+              "flex": 12
+            },
+            "wrist": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0.08,
+                "spread": 0
+              }
+            }
+          },
+          "right": {
+            "shoulder": {
+              "x": -12,
+              "y": 0,
+              "z": -19
+            },
+            "elbow": {
+              "flex": 12
+            },
+            "wrist": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "hand": {
+              "thumb": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "index": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "middle": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "ring": {
+                "curl": 0.08,
+                "spread": 0
+              },
+              "pinky": {
+                "curl": 0.08,
+                "spread": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

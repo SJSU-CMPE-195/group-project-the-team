@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0b1020"/>
+  <title>Silent Voice Bridge | Avatar Lab</title>
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">SV</span><div><strong>Silent Voice Bridge</strong><small>English → Avatar · Milestone 02 · Position Playback</small></div></div>
+    <div class="topbar-right"><span class="phase-dot"></span><span>Local prototype</span><span class="head-separator"></span><span>Workstream B</span></div>
+  </header>
+  <main class="workspace">
+    <section class="stage-pane" aria-label="3D avatar stage">
+      <div class="stage-heading">
+        <div><p class="eyebrow">AVATAR SANDBOX</p><h1>Avatar motion lab</h1><p class="subtitle">Joint-angle rig + full 3D position playback.</p></div>
+        <span class="status-chip"><span class="blue-pulse"></span> LIVE 3D</span>
+      </div>
+      <div id="canvas-host" class="canvas-host">
+        <div class="canvas-label"><span class="live-dot"></span> THREE.JS RENDERER <span class="canvas-sep">·</span> 3D JOINT SPACE</div>
+        <div class="canvas-tip">Drag to orbit · Scroll to zoom · Right-drag to pan</div>
+        <div class="canvas-bottom">
+          <span><b>42</b> hand landmarks</span>
+          <span><b>2</b> animated arms</span>
+          <span><b>10</b> independent fingers</span>
+        </div>
+        <div id="render-error" role="alert" hidden></div>
+      </div>
+      <section class="playback panel" aria-label="Animation playback">
+        <div class="clip-header"><div><p class="eyebrow">ANIMATION PLAYER</p><h2 id="clip-name">DEMO_WAVE_NOT_ASL</h2></div><span class="unverified" id="motion-type">JOINT ANGLES</span></div>
+        <div class="transport">
+          <button id="btn-restart" class="icon-button" title="Restart animation" aria-label="Restart animation">↺</button>
+          <button id="btn-play" class="play-button" aria-label="Pause animation">Ⅱ Pause</button>
+          <input id="timeline" aria-label="Timeline position" type="range" min="0" max="2770" step="1" value="0"/>
+          <span id="time-label" class="timecode">0.00 / 2.77s</span>
+        </div>
+        <div class="playback-footer">
+          <div class="inline-options"><label for="speed">Speed</label><select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></div>
+          <label class="check"><input id="loop" type="checkbox" checked/> Loop playback</label>
+          <label class="check"><input id="markers" type="checkbox" checked/> Show joints</label>
+          <label class="check"><input id="grid" type="checkbox" checked/> Show grid</label>
+        </div>
+      </section>
+      <div class="footnote"><span class="footnote-star">ⓘ</span> Demo poses represent test motions, not verified American Sign Language signs. Real ASL3DWord playback requires licensed source data and SMPL-X reconstruction.</div>
+    </section>
+    <aside class="inspector" aria-label="Avatar inspector">
+      <div class="inspector-heading"><p class="eyebrow">CONTROL PANEL</p><h2>Pose inspector</h2><p>Use manual joint-angle controls or import a 3D joint-position animation.</p></div>
+      <section class="control-section">
+        <div class="section-label"><h3>Data import lab</h3><span>NEW IN MILESTONE 2</span></div>
+        <p class="helper">Replay per-frame 3D joint positions exported from a source dataset. Use the synthetic positional motion to test this pipeline until ASL3DWord access is granted.</p>
+        <button class="preset accent" id="btn-position-demo" style="width:100%">Play positional test (NOT ASL)</button>
+        <p class="helper" id="motion-banner" style="margin-top:9px">ANGLE CONTROLS ENABLED</p>
+      </section>
+      <section class="control-section">
+        <div class="section-label"><h3>Quick poses</h3><span>TEST ONLY</span></div>
+        <div class="presets">
+          <button class="preset" data-preset="neutral">Neutral</button><button class="preset" data-preset="open">Open hands</button>
+          <button class="preset" data-preset="fist">Both fists</button><button class="preset" data-preset="point">Point</button>
+          <button class="preset" data-preset="raise">Raise arms</button><button class="preset accent" id="btn-demo">Demo wave ↗</button>
+        </div>
+      </section>
+      <section class="control-section">
+        <div class="section-label"><h3>Joint controls</h3><span>DEGREES / 0–100%</span></div>
+        <div class="side-tabs" role="group" aria-label="Select arm">
+          <button id="side-left" class="active" aria-pressed="true">Left arm</button>
+          <button id="side-right" aria-pressed="false">Right arm</button>
+        </div>
+        <div id="joint-controls"></div>
+      </section>
+      <section class="control-section">
+        <div class="section-label"><h3>Animation authoring</h3><span>JSON V1</span></div>
+        <p class="helper">Create a new animation from the current pose. Adjust joints, then add keyframes at later timestamps.</p>
+        <div class="button-grid"><button id="btn-new-clip" class="outlined">New animation</button><button id="btn-add-frame" class="outlined">+ Add keyframe</button></div>
+        <div class="time-input"><label for="frame-time">Keyframe time (milliseconds)</label><input id="frame-time" type="number" min="0" max="600000" step="100" value="500"/></div>
+        <div id="keyframe-info" class="keyframe-info">Demo clip · 8 keyframes</div>
+      </section>
+      <section class="control-section last">
+        <div class="section-label"><h3>Save / load</h3><span>LOCAL FILES</span></div>
+        <div class="button-grid"><button id="btn-save-pose" class="outlined">Save pose</button><button id="btn-export-clip" class="outlined">Export animation</button></div>
+        <div class="button-grid"><button id="btn-import" class="outlined">Import pose / motion JSON</button><button id="btn-landmarks" class="outlined">Export joints</button></div>
+        <input id="file-import" type="file" accept="application/json,.json" hidden/>
+        <div id="status" class="status-message" role="status" aria-live="polite">Loaded test animation. Pause and move a joint to experiment.</div>
+      </section>
+    </aside>
+  </main>
+</div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

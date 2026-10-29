@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.vite/
+.DS_Store
+*.log
+.venv/
+dataset_inputs/
+*.pkl
+*.pt
+*.pth
+*.npz
+*.npy
