@@ -220,12 +220,14 @@ def get_html_content() -> str:
       background: var(--teal-primary);
     }
     video#webcamVideo {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transform: scaleX(-1);
-      display: none;
+      position: fixed;
+      top: -9999px;
+      left: -9999px;
+      width: 640px;
+      height: 480px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: -100;
     }
     canvas#camCanvas {
       width: 100%;
@@ -1007,6 +1009,8 @@ def get_html_content() -> str:
   </style>
 </head>
 <body>
+  <!-- Persistent off-screen video element ensuring live camera stream decodes across all tabs -->
+  <video id="webcamVideo" autoplay playsinline muted style="position: fixed; top: -9999px; left: -9999px; width: 640px; height: 480px; opacity: 0; pointer-events: none; z-index: -100;"></video>
   <!-- TOP NAVBAR -->
   <header>
     <div class="brand">
@@ -1040,7 +1044,6 @@ def get_html_content() -> str:
               <button id="camToggleBtn" class="cam-action-btn" onclick="toggleWebcam()">Stop Camera</button>
             </div>
             
-            <video id="webcamVideo" autoplay playsinline muted></video>
             <canvas id="camCanvas"></canvas>
 
             <!-- Clean Streamlined HUD Overlay on Camera -->
@@ -2026,10 +2029,20 @@ def get_html_content() -> str:
       document.getElementById('modalFooterNote').innerText = '🔒 Complete all 3 attempts to compile FastDTW templates';
 
       document.getElementById('customSignModal').style.display = 'flex';
-      if (!isWebcamRunning) {
+      
+      const rCanvas = document.getElementById('recordCamCanvas');
+      if (rCanvas && rCanvas.parentElement) {
+        const rect = rCanvas.parentElement.getBoundingClientRect();
+        if (rect.width > 0) rCanvas.width = rect.width;
+        if (rect.height > 0) rCanvas.height = rect.height;
+      }
+
+      if (!isWebcamRunning || !webcamStream || !webcamStream.active) {
         startWebcam();
-      } else if (webcamVideo && webcamVideo.paused) {
-        webcamVideo.play().catch(e => console.warn('play error:', e));
+      } else if (webcamVideo) {
+        if (webcamVideo.paused) {
+          webcamVideo.play().catch(e => console.warn('webcam play error:', e));
+        }
       }
     }
 
