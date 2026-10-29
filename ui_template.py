@@ -1043,44 +1043,28 @@ def get_html_content() -> str:
             <video id="webcamVideo" autoplay playsinline muted></video>
             <canvas id="camCanvas"></canvas>
 
-            <!-- Bottom Live ST-GCN Recognition & Phrase Tray HUD -->
-            <div class="recognized-overlay">
+            <!-- Clean Streamlined HUD Overlay on Camera -->
+            <div class="recognized-overlay" style="padding: 12px 18px;">
               <div style="flex: 1; min-width: 0;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-                  <div class="rec-label" id="bridgeModelMode" style="letter-spacing: 0.5px; font-weight: 800; color: #2dd4bf;">🔤 ASL ALPHABET ONNX (98.1% ACCURACY)</div>
-                  <div id="bridgeSignCooldownIndicator" style="font-size: 0.72rem; color: #94a3b8;">Hold ~350ms to commit letter</div>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <div class="rec-label" id="bridgeModelMode" style="letter-spacing: 0.5px; font-weight: 800; color: #0d9488;">🔤 ASL ALPHABET ONNX (98.1% ACCURACY)</div>
+                  <div id="bridgeSignCooldownIndicator" style="font-size: 0.72rem; color: #94a3b8;">Hold ~350ms to lock letter</div>
                 </div>
-                <div class="rec-gloss" id="bridgeGloss" style="font-size: 1.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Ready to Spell</div>
-                <div class="rec-sub-status" id="bridgeStatusMsg">Spell letters A-Z · Drop hand to space · Click Send & Speak for voice</div>
-                
-                <!-- Live Word & Sentence Builder Tray -->
-                <div id="phraseTrayBox" style="margin-top: 10px; background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(45, 212, 191, 0.4); border-radius: 10px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px;">
-                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
-                      <span style="font-size: 0.72rem; font-weight: 800; color: #2dd4bf; text-transform: uppercase; letter-spacing: 0.5px;">Spelling Word:</span>
-                      <span id="currentWordBadge" style="background: #0f766e; color: #ffffff; padding: 2px 10px; border-radius: 6px; font-size: 0.95rem; font-weight: 800; letter-spacing: 1px;">_</span>
-                      <span style="font-size: 0.72rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-left: 8px;">Sentence:</span>
-                      <span id="currentPhraseText" style="font-size: 0.95rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">(Empty)</span>
-                    </div>
-                    <div style="display: flex; gap: 6px; flex-shrink: 0;">
-                      <button class="btn-teal-sm" onclick="manualWordSpace()" style="background: rgba(255,255,255,0.12); padding: 5px 9px; font-size: 0.75rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); color: #e2e8f0;" title="Insert space between words">␣ Space</button>
-                      <button class="btn-cancel" onclick="manualBackspaceLetter()" style="padding: 5px 8px; font-size: 0.75rem; border-radius: 6px; background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4);" title="Delete last letter">⌫ Del</button>
-                      <button class="btn-teal-sm" id="btnSpeakSendPhrase" onclick="commitCurrentSentence(true)" style="background: #0d695e; padding: 5px 12px; font-size: 0.78rem; font-weight: 800; border-radius: 6px; display: flex; align-items: center; gap: 4px;" title="Speak sentence out loud and post to conversation">🔊 Speak & Send</button>
-                      <button class="btn-cancel" onclick="clearCurrentSentence()" style="padding: 5px 8px; font-size: 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.1); color: #cbd5e1; border: none;" title="Clear entire sentence">Clear</button>
-                    </div>
-                  </div>
+                <div style="display: flex; align-items: baseline; gap: 10px; margin-top: 2px;">
+                  <div class="rec-gloss" id="bridgeGloss" style="font-size: 1.55rem; font-weight: 900; color: #0b1e33; margin: 0;">Ready to Spell</div>
+                  <div class="rec-sub-status" id="bridgeStatusMsg" style="font-size: 0.76rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Form hand signs · Building sentence in Live Conversation on right →</div>
                 </div>
               </div>
 
-              <div class="rec-conf-col" style="min-width: 130px; margin-left: 14px;">
+              <div class="rec-conf-col" style="min-width: 110px; margin-left: 16px;">
                 <div class="conf-row">
-                  <span class="conf-title">Confidence</span>
-                  <span class="conf-val" id="bridgeConfVal">--</span>
+                  <span class="conf-title" style="font-size: 0.74rem;">Match</span>
+                  <span class="conf-val" id="bridgeConfVal" style="font-size: 0.85rem; font-weight: 800; color: #0f766e;">--</span>
                 </div>
-                <div class="conf-bar-bg" style="height: 8px; border-radius: 4px;">
-                  <div class="conf-bar-fill" id="bridgeConfBar" style="width: 0%; transition: width 0.15s ease;"></div>
+                <div class="conf-bar-bg" style="height: 6px; border-radius: 3px; background: #e2e8f0; width: 100%;">
+                  <div class="conf-bar-fill" id="bridgeConfBar" style="width: 0%; transition: width 0.12s ease; background: #14b8a6; height: 100%; border-radius: 3px;"></div>
                 </div>
-                <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px; text-align: right;" id="bridgeEnergyLabel">Hold steady</div>
+                <div style="font-size: 0.68rem; color: #64748b; margin-top: 2px; text-align: right;" id="bridgeEnergyLabel">Hold steady</div>
               </div>
             </div>
           </div>
@@ -1104,6 +1088,33 @@ def get_html_content() -> str:
             <div class="convo-messages" id="convoMessages">
               <div class="convo-msg-system">
                 <span>👋 <b>Two-Way Bridge Active</b>: The camera tracks your ASL signs on the left and translates them to English text & voice below. The hearing partner can click <b>Mic</b> to speak or type a reply below!</span>
+              </div>
+            </div>
+
+            <!-- Live Signer Spelling & Sentence Builder Strip (Right Column) -->
+            <div id="signerSentenceStrip" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #0d9488;"></span>
+                  <span style="font-size: 0.72rem; font-weight: 800; color: #0d9488; text-transform: uppercase; letter-spacing: 0.5px;">Live ASL Sentence Builder</span>
+                </div>
+                <div style="display: flex; gap: 5px;">
+                  <button onclick="manualWordSpace()" style="background: #e2e8f0; border: none; padding: 3px 8px; font-size: 0.72rem; font-weight: 700; border-radius: 5px; color: #334155; cursor: pointer;" title="Finish word and add space">␣ Space</button>
+                  <button onclick="manualBackspaceLetter()" style="background: #fee2e2; border: none; padding: 3px 8px; font-size: 0.72rem; font-weight: 700; border-radius: 5px; color: #b91c1c; cursor: pointer;" title="Delete last letter">⌫ Del</button>
+                  <button onclick="clearCurrentSentence()" style="background: transparent; border: none; padding: 3px 6px; font-size: 0.72rem; color: #94a3b8; cursor: pointer;" title="Clear sentence">Clear</button>
+                </div>
+              </div>
+
+              <!-- Real-time Spelled Word and Sentence Display -->
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 12px;">
+                <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+                  <span id="currentWordBadge" style="background: #0f766e; color: #ffffff; padding: 2px 8px; border-radius: 5px; font-size: 0.88rem; font-weight: 900; letter-spacing: 1.5px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">_</span>
+                  <span id="currentPhraseText" style="font-size: 0.95rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">(Sign letters on camera...)</span>
+                </div>
+                <button id="btnSpeakSendPhrase" onclick="commitCurrentSentence(true)" style="background: #0d695e; border: none; color: #ffffff; padding: 6px 12px; font-size: 0.8rem; font-weight: 700; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; flex-shrink: 0; box-shadow: 0 2px 6px rgba(13,105,94,0.3); transition: all 0.2s;" title="Speak sentence aloud and post to conversation">
+                  <span>🔊</span>
+                  <span>Speak & Send</span>
+                </button>
               </div>
             </div>
 
