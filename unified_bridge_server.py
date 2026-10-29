@@ -29,6 +29,41 @@ if str(ROOT_DIR) not in sys.path:
 from asl_engine.synthesizer import ASLSynthesizer
 from palm_normalizer import normalize_landmarks_frame, resample_sequence
 
+# --- ST-GCN Machine Learning Inference Setup ---
+import torch
+import pickle
+from collections import deque
+import sys
+SRC_DIR = ROOT_DIR / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+try:
+    from stgcn_model import SignLanguageSTGCN, SingleHandSTGCN
+    from sentence_engine import SentenceEngine
+
+    ml_device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu')
+    print(f"🧠 Loading ST-GCN Neural Network Models on: {ml_device}...")
+
+    with open(ROOT_DIR / 'models' / 'label_encoder_master.pkl', 'rb') as f:
+        master_encoder = pickle.load(f)
+    master_stgcn = SignLanguageSTGCN(num_classes=len(master_encoder.classes_)).to(ml_device)
+    master_stgcn.load_state_dict(torch.load(ROOT_DIR / 'models' / 'master_stgcn.pth', map_location=ml_device))
+    master_stgcn.eval()
+
+    with open(ROOT_DIR / 'models' / 'label_encoder_alpha_solo.pkl', 'rb') as f:
+        solo_encoder = pickle.load(f)
+    solo_stgcn = SingleHandSTGCN(num_classes=len(solo_encoder.classes_)).to(ml_device)
+    solo_stgcn.load_state_dict(torch.load(ROOT_DIR / 'models' / 'pure_alpha_stgcn.pth', map_location=ml_device))
+    solo_stgcn.eval()
+
+    sentence_engine = SentenceEngine(confidence_threshold=0.45, energy_commit_limit=6)
+    stgcn_loaded = True
+    print(f"✓ ST-GCN Models ready: Master ({len(master_encoder.classes_)} classes), Solo Alphabet ({len(solo_encoder.classes_)} classes)")
+except Exception as e:
+    stgcn_loaded = False
+    print(f"⚠️ Warning: Could not initialize ST-GCN models: {e}")
+
 STATIC_DIR = ROOT_DIR / "web_static"
 VIDEO_DIR = STATIC_DIR / "videos"
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
@@ -48,19 +83,7 @@ if TENSORS_DIR.exists():
                 pass
 
 # Sign metadata dictionary
-SIGNS_INFO = {
-    "HOW-ARE-YOU": {"english": "How are you?", "category": "Greetings", "lesson": "2 of 8", "tip": "Raise your wrist a little and keep your thumb open. This compares your motion to the example, not a full ASL check."},
-    "HELLO": {"english": "Hello!", "category": "Greetings", "lesson": "1 of 8", "tip": "Start near your temple and move your open palm outward in a crisp salute motion."},
-    "NICE-MEET-YOU": {"english": "Nice to meet you", "category": "Greetings", "lesson": "3 of 8", "tip": "Slide your dominant flat palm across the other, then bring both index fingers facing together."},
-    "MY-NAME": {"english": "My name is", "category": "Introductions", "lesson": "4 of 8", "tip": "Place flat palm on chest for 'MY', then tap H-handshape index/middle fingers for 'NAME'."},
-    "WHAT-IS-YOUR-NAME": {"english": "What is your name?", "category": "Introductions", "lesson": "5 of 8", "tip": "Point open palm forward for 'YOUR', tap fingers for 'NAME', and shake open palms for 'WHAT'."},
-    "THANK-YOU": {"english": "Thank you", "category": "Courtesies", "lesson": "6 of 8", "tip": "Touch fingertips to chin and move hand forward and slightly downward toward partner."},
-    "PLEASE": {"english": "Please", "category": "Courtesies", "lesson": "7 of 8", "tip": "Place flat open palm on center of chest and rub gently in circular clockwise motion."},
-    "DEAF": {"english": "I am deaf", "category": "Assistance", "lesson": "8 of 8", "tip": "Touch index fingertip from near earlobe to corner of mouth."},
-    "FINE": {"english": "I'm doing fine", "category": "Greetings", "lesson": "Optional", "tip": "Touch thumb of open 5-handshape to center of chest."},
-    "HELP": {"english": "I need help", "category": "Assistance", "lesson": "Optional", "tip": "Place fist with thumb upright on open flat palm and lift upward together."},
-    "WRITE-PLEASE": {"english": "Please write it down", "category": "Assistance", "lesson": "Optional", "tip": "Pinch dominant fingers like holding pen and wiggle across non-dominant flat palm."}
-}
+SIGNS_INFO = {}
 
 synth = ASLSynthesizer()
 
@@ -240,7 +263,11 @@ class UnifiedBridgeHandler(SimpleHTTPRequestHandler):
         except Exception:
             data = {}
 
-        if path == "/api/score":
+        if path == "/api/predict_stgcn":
+            self.handle_predict_stgcn(data)
+        elif path == "/api/reset_sentence":
+            self.handle_reset_sentence(data)
+        elif path == "/api/score":
             self.handle_score(data)
         elif path == "/api/recognize":
             self.handle_recognize(data)
@@ -288,6 +315,101 @@ class UnifiedBridgeHandler(SimpleHTTPRequestHandler):
             "mess_up": coaching["mess_up"],
             "tip": coaching["tip"]
         })
+
+    def handle_reset_sentence(self, data):
+        if stgcn_loaded:
+            sentence_engine.reset()
+        self.send_json({"status": "reset", "sentence": "", "raw": []})
+
+    def handle_predict_stgcn(self, data):
+        frames = data.get("frames", [])
+        hand_count = data.get("hand_count", 1)
+        velocity = float(data.get("velocity", 0.0))
+
+        if not stgcn_loaded or len(frames) < 15:
+            self.send_json({
+                "predicted": None,
+                "confidence": 0.0,
+                "candidate": None,
+                "energy_ratio": 0.0,
+                "committed_word": None,
+                "current_phrase": sentence_engine.get_sentence_text() if stgcn_loaded else "",
+                "sentence_words": sentence_engine.sentence if stgcn_loaded else [],
+                "mode": "WAITING"
+            })
+            return
+
+        # Prepare 30-frame sequence (pad or trim)
+        if len(frames) > 30:
+            seq = frames[-30:]
+        elif len(frames) < 30:
+            # Repeat last frame to reach 30
+            seq = list(frames)
+            while len(seq) < 30:
+                seq.append(seq[-1])
+        else:
+            seq = frames
+
+        try:
+            input_np = np.array(seq, dtype=np.float32)
+            top_k_preds = []
+
+            with torch.no_grad():
+                if hand_count >= 2:
+                    mode = "DUAL HAND (MASTER ST-GCN)"
+                    if input_np.shape[1] < 126:
+                        padded = np.zeros((30, 126), dtype=np.float32)
+                        padded[:, :input_np.shape[1]] = input_np
+                        input_np = padded
+                    elif input_np.shape[1] > 126:
+                        input_np = input_np[:, :126]
+
+                    input_tensor = torch.tensor(input_np).unsqueeze(0).to(ml_device)
+                    output = master_stgcn(input_tensor)
+                    probabilities = torch.softmax(output, dim=1)[0]
+                    top_k_values, top_k_indices = torch.topk(probabilities, k=min(3, len(master_encoder.classes_)))
+                    
+                    for v, i in zip(top_k_values, top_k_indices):
+                        top_k_preds.append((master_encoder.classes_[i.item()], float(v.item())))
+                else:
+                    mode = "SINGLE HAND (ALPHABET ST-GCN)"
+                    if input_np.shape[1] > 63:
+                        input_np = input_np[:, :63]
+                    elif input_np.shape[1] < 63:
+                        padded = np.zeros((30, 63), dtype=np.float32)
+                        padded[:, :input_np.shape[1]] = input_np
+                        input_np = padded
+
+                    input_tensor = torch.tensor(input_np).unsqueeze(0).to(ml_device)
+                    output = solo_stgcn(input_tensor)
+                    probabilities = torch.softmax(output, dim=1)[0]
+                    top_k_values, top_k_indices = torch.topk(probabilities, k=min(3, len(solo_encoder.classes_)))
+
+                    for v, i in zip(top_k_values, top_k_indices):
+                        top_k_preds.append((solo_encoder.classes_[i.item()], float(v.item())))
+
+            # Feed to SentenceEngine with energy and kinetic hold
+            candidate, energy_ratio, committed_word = sentence_engine.process_prediction(
+                top_k_preds, hand_count=hand_count, velocity=velocity
+            )
+
+            current_phrase = sentence_engine.get_sentence_text()
+            top_word = top_k_preds[0][0].replace('1', '') if top_k_preds else None
+            top_conf = round(top_k_preds[0][1] * 100, 1) if top_k_preds else 0.0
+
+            self.send_json({
+                "predicted": top_word,
+                "confidence": top_conf,
+                "top_predictions": [(w.replace('1',''), round(c * 100, 1)) for w, c in top_k_preds],
+                "candidate": candidate,
+                "energy_ratio": energy_ratio,
+                "committed_word": committed_word,
+                "current_phrase": current_phrase,
+                "sentence_words": list(sentence_engine.sentence),
+                "mode": mode
+            })
+        except Exception as e:
+            self.send_json({"error": str(e)}, 500)
 
     def handle_recognize(self, data):
         gloss = data.get("gloss", "HOW-ARE-YOU").upper()

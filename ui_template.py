@@ -1042,21 +1042,38 @@ def get_html_content() -> str:
             <video id="webcamVideo" autoplay playsinline muted></video>
             <canvas id="camCanvas"></canvas>
 
-            <!-- Bottom Live Recognition HUD -->
+            <!-- Bottom Live ST-GCN Recognition & Phrase Tray HUD -->
             <div class="recognized-overlay">
-              <div>
-                <div class="rec-label">RECOGNIZED ASL SIGN</div>
-                <div class="rec-gloss" id="bridgeGloss">Ready to Sign</div>
-                <div class="rec-sub-status" id="bridgeStatusMsg">Hold gesture steady in frame · Translates basic words & alphabet</div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                  <div class="rec-label" id="bridgeModelMode" style="letter-spacing: 0.5px; font-weight: 800; color: #2dd4bf;">🧠 ST-GCN NEURAL BRIDGE ACTIVE</div>
+                  <div id="bridgeSignCooldownIndicator" style="font-size: 0.72rem; color: #94a3b8;">1 Phrase at a time</div>
+                </div>
+                <div class="rec-gloss" id="bridgeGloss" style="font-size: 1.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Ready to Sign</div>
+                <div class="rec-sub-status" id="bridgeStatusMsg">Form a sign or spell letters · Words accumulate into your phrase below</div>
+                
+                <!-- Live Phrase Tray -->
+                <div id="phraseTrayBox" style="margin-top: 10px; background: rgba(15, 23, 42, 0.75); border: 1.5px solid rgba(45, 212, 191, 0.3); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                  <div style="display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1;">
+                    <span style="font-size: 0.75rem; font-weight: 700; color: #2dd4bf; text-transform: uppercase;">Phrase:</span>
+                    <span id="currentPhraseText" style="font-size: 0.95rem; font-weight: 800; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">(None yet)</span>
+                  </div>
+                  <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                    <button class="btn-teal-sm" id="btnSpeakSendPhrase" onclick="commitCurrentPhrase(true)" style="background: #0d695e; padding: 5px 10px; font-size: 0.78rem; border-radius: 6px;" title="Send and speak current phrase">Send & Speak</button>
+                    <button class="btn-cancel" onclick="clearCurrentPhrase()" style="padding: 5px 8px; font-size: 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.1); color: #cbd5e1; border: none;" title="Clear phrase">Clear</button>
+                  </div>
+                </div>
               </div>
-              <div class="rec-conf-col">
+
+              <div class="rec-conf-col" style="min-width: 130px; margin-left: 14px;">
                 <div class="conf-row">
                   <span class="conf-title">Confidence</span>
                   <span class="conf-val" id="bridgeConfVal">--</span>
                 </div>
-                <div class="conf-bar-bg">
-                  <div class="conf-bar-fill" id="bridgeConfBar" style="width: 0%;"></div>
+                <div class="conf-bar-bg" style="height: 8px; border-radius: 4px;">
+                  <div class="conf-bar-fill" id="bridgeConfBar" style="width: 0%; transition: width 0.15s ease;"></div>
                 </div>
+                <div style="font-size: 0.7rem; color: #64748b; margin-top: 4px; text-align: right;" id="bridgeEnergyLabel">Hold steady</div>
               </div>
             </div>
           </div>
@@ -1867,10 +1884,27 @@ def get_html_content() -> str:
           }
 
           // Update header status
-          const totalSigns = 11 + customEntries.length;
-          const statusText = `${totalSigns} Signs (${customEntries.length} Custom Unlocked) · FastDTW Active`;
+          const totalSigns = customEntries.length + coreEntries.length;
+          const statusText = `${totalSigns} Sign${totalSigns === 1 ? '' : 's'} (${customEntries.length} Custom Active) · 3 Tries Verified`;
           const headStat = document.getElementById('headerRightStatus');
           if (headStat) headStat.innerText = statusText;
+
+          // If no signs in library yet, render helpful empty state
+          if (entries.length === 0) {
+            grid.innerHTML = `
+              <div style="grid-column: 1 / -1; background: #ffffff; border: 2px dashed #99f6e4; border-radius: 16px; padding: 48px 24px; text-align: center;">
+                <div style="font-size: 2.8rem; margin-bottom: 12px;">✨</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: #0f766e; margin-bottom: 8px;">Your Sign Library is Ready to Learn</div>
+                <p style="color: #64748b; font-size: 0.95rem; max-width: 460px; margin: 0 auto 20px auto; line-height: 1.5;">
+                  You start with zero clutter. Click below to teach your very first sign using <b>3 quick recorded attempts</b>. Once saved, it unlocks immediately in Live Bridge!
+                </p>
+                <button class="btn-teal" style="padding: 12px 24px; font-size: 0.95rem; border-radius: 10px; font-weight: 700;" onclick="openRecordCustomModal()">
+                  + Record Your First Sign (3 Tries)
+                </button>
+              </div>
+            `;
+            return;
+          }
 
           // Render Custom Unlocked Signs first with glowing cards
           for (const [gloss, info] of customEntries) {
@@ -2074,7 +2108,7 @@ def get_html_content() -> str:
         return;
       }
 
-      // Extract consensus signature for quick client matching
+      // Extract consensus signature and all 3 template snapshots for high-confidence matching
       const allFrames = recordedAttempts.flat();
       const numHands = allFrames.length > 0 && allFrames[0].multiLandmarks ? allFrames[0].multiLandmarks.length : 1;
       const refFrame = allFrames[Math.floor(allFrames.length / 2)];
@@ -2088,14 +2122,29 @@ def get_html_content() -> str:
         h1[20].y < h1[18].y
       ];
 
-      // Normalized key landmark offsets
+      // Normalized key landmark offsets for reference
       const keyLandmarks = h1.map(p => ({ x: p.x - wrist.x, y: p.y - wrist.y }));
+
+      // Store normalized landmarks from the middle (apex) of each of the 3 recorded attempts
+      const templateLandmarks = recordedAttempts.map(att => {
+        if (!att || att.length === 0) return null;
+        const midF = att[Math.floor(att.length / 2)];
+        if (!midF.multiLandmarks || midF.multiLandmarks.length === 0) return null;
+        const hand = midF.multiLandmarks[0];
+        const w = hand[0];
+        const scale = Math.max(0.08, Math.hypot(hand[9].x - w.x, hand[9].y - w.y));
+        return hand.map(pt => ({
+          x: (pt.x - w.x) / scale,
+          y: (pt.y - w.y) / scale
+        }));
+      }).filter(Boolean);
 
       const signature = {
         numHands,
         primaryFingers: f1,
         wrist,
         keyLandmarks: keyLandmarks.slice(0, 21),
+        templateLandmarks,
         signer
       };
 
@@ -2381,239 +2430,320 @@ def get_html_content() -> str:
     // --- STABLE SIGN GESTURE CLASSIFIER WITH ENERGY ACCUMULATOR ---
     let activeCandidate = null;
     let candidateEnergy = 0;
-    const ENERGY_COMMIT_THRESHOLD = 5; // ~180-200ms of stable hold
+    const ENERGY_COMMIT_THRESHOLD = 6; // ~200-240ms of stable apex hold
     const signCooldowns = {};
-    const COOLDOWN_MS = 2500;
+    const COOLDOWN_MS = 3000;
+    let lastWristPos = null;
 
     function isFingerExtended(hand, tipIdx, pipIdx) {
       return hand[tipIdx].y < hand[pipIdx].y;
     }
 
-    function matchCustomSign(cs, multiLandmarks, f1, count1, wrist1) {
-      if (!cs.signature) return false;
+    // High-precision custom sign comparator against recorded templates
+    function matchCustomSign(cs, multiLandmarks) {
+      if (!cs || !cs.signature || !multiLandmarks || multiLandmarks.length === 0) return { matched: false, confidence: 0 };
       const sig = cs.signature;
 
-      // 1. Hands count check
-      if (sig.numHands >= 2 && multiLandmarks.length < 2) return false;
+      // 1. Hands count verification
+      if (sig.numHands >= 2 && multiLandmarks.length < 2) return { matched: false, confidence: 0 };
 
-      // 2. Finger extension similarity
-      if (sig.primaryFingers && sig.primaryFingers.length === 5) {
-        let matchCount = 0;
-        for (let i = 0; i < 5; i++) {
-          if (Boolean(f1[i]) === Boolean(sig.primaryFingers[i])) matchCount++;
+      const h1 = multiLandmarks[0];
+      const w = h1[0];
+      const scale = Math.max(0.08, Math.hypot(h1[9].x - w.x, h1[9].y - w.y));
+
+      // 2. Velocity filter: check hand movement stability (discard erratic arm swings)
+      let wristVel = 0;
+      if (lastWristPos) {
+        wristVel = Math.hypot(w.x - lastWristPos.x, w.y - lastWristPos.y);
+      }
+      lastWristPos = { x: w.x, y: w.y };
+      if (wristVel > 0.045) {
+        // Hand is moving too fast (transitional movement, not holding apex)
+        return { matched: false, confidence: 0 };
+      }
+
+      // 3. Current normalized landmarks
+      const currentNorm = h1.map(pt => ({
+        x: (pt.x - w.x) / scale,
+        y: (pt.y - w.y) / scale
+      }));
+
+      // 4. Compare with 3 recorded templates if available
+      let bestDist = 999.0;
+      if (sig.templateLandmarks && sig.templateLandmarks.length > 0) {
+        for (const tpl of sig.templateLandmarks) {
+          if (!tpl || tpl.length < 21) continue;
+          let dSum = 0;
+          for (let i = 0; i < 21; i++) {
+            dSum += Math.hypot(currentNorm[i].x - tpl[i].x, currentNorm[i].y - tpl[i].y);
+          }
+          const avgD = dSum / 21;
+          if (avgD < bestDist) bestDist = avgD;
         }
-        if (matchCount < 4) return false;
-      }
-
-      // 3. Wrist spatial region check
-      if (sig.wrist) {
-        const dWrist = Math.hypot(wrist1.x - sig.wrist.x, wrist1.y - sig.wrist.y);
-        if (dWrist > 0.35) return false;
-      }
-
-      // 4. Landmark distance
-      if (sig.keyLandmarks && sig.keyLandmarks.length >= 21) {
-        const h1 = multiLandmarks[0];
-        const w = h1[0];
-        let sumDist = 0;
+      } else if (sig.keyLandmarks && sig.keyLandmarks.length >= 21) {
+        // Fallback to key landmarks
+        let dSum = 0;
         const testIndices = [4, 8, 12, 16, 20];
         for (const idx of testIndices) {
           const curDx = h1[idx].x - w.x;
           const curDy = h1[idx].y - w.y;
           const refDx = sig.keyLandmarks[idx].x;
           const refDy = sig.keyLandmarks[idx].y;
-          sumDist += Math.hypot(curDx - refDx, curDy - refDy);
+          dSum += Math.hypot(curDx - refDx, curDy - refDy);
         }
-        const avgDist = sumDist / testIndices.length;
-        if (avgDist > 0.28) return false;
+        bestDist = dSum / testIndices.length;
       }
 
-      return true;
+      // Convert distance to confidence percentage: 0 distance -> 100%, 0.35 distance -> 50%
+      const conf = Math.max(0, Math.min(100, Math.round(100 - (bestDist * 140))));
+
+      // Require high similarity threshold (>= 85%) to prevent spam
+      if (conf >= 85 && bestDist <= 0.12) {
+        return { matched: true, confidence: conf };
+      }
+      return { matched: false, confidence: conf };
     }
 
-    function detectGestureFromFrame(multiLandmarks) {
+    // --- ST-GCN SLIDING WINDOW & PHRASE ACCUMULATOR ---
+    const STGCN_WINDOW_SIZE = 30;
+    let stgcnFrameBuffer = [];
+    let isStgcnBusy = false;
+    let lastStgcnCallTime = 0;
+    let currentAccumulatedPhrase = "";
+    let accumulatedWords = [];
+    let lastHandSeenTime = 0;
+    let autoSendTimeout = null;
+    let lastSpokenPhrase = "";
+
+    function clearCurrentPhrase() {
+      currentAccumulatedPhrase = "";
+      accumulatedWords = [];
+      const phraseEl = document.getElementById("currentPhraseText");
+      if (phraseEl) phraseEl.innerText = "(None yet)";
+      fetch('/api/reset_sentence', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+        .catch(() => {});
+    }
+
+    function commitCurrentPhrase(manualClick = false) {
+      const phrase = currentAccumulatedPhrase.trim();
+      if (!phrase) return;
+      if (phrase === lastSpokenPhrase && !manualClick) return; // Prevent double speak
+
+      // Commit to Bridge Conversation once
+      const glossList = accumulatedWords.join(" ") || phrase;
+      appendDeafSignerMessage(glossList, phrase, 94, false, currentSignerProfile);
+      lastSpokenPhrase = phrase;
+
+      // Visual feedback on HUD
+      const statusEl = document.getElementById("bridgeStatusMsg");
+      if (statusEl) statusEl.innerText = `✓ Sent phrase: "${phrase}"`;
+
+      // Clear phrase tray
+      clearCurrentPhrase();
+    }
+
+    // Process live frame coordinates into ST-GCN canonical (63 or 126 dims)
+    function processLandmarksForSTGCN(multiLandmarks) {
       if (!multiLandmarks || multiLandmarks.length === 0) return null;
-      const numHands = multiLandmarks.length;
-      const h1 = multiLandmarks[0];
+      let rightCoords = new Array(63).fill(0.0);
+      let leftCoords = new Array(63).fill(0.0);
 
-      // Fingertip extension flags for primary hand: [thumb, index, middle, ring, pinky]
-      const f1 = [
-        Math.hypot(h1[4].x - h1[2].x, h1[4].y - h1[2].y) > 0.08,
-        isFingerExtended(h1, 8, 6),
-        isFingerExtended(h1, 12, 10),
-        isFingerExtended(h1, 16, 14),
-        isFingerExtended(h1, 20, 18)
-      ];
-      const count1 = f1.filter(Boolean).length;
-      const wrist1 = h1[0];
-
-      // --- MATCH USER CUSTOM SIGNS FIRST ---
-      for (const cs of activeCustomSigns) {
-        if (matchCustomSign(cs, multiLandmarks, f1, count1, wrist1)) {
-          return {
-            gloss: cs.gloss,
-            english: cs.english,
-            conf: 94,
-            isCustom: true,
-            signer: cs.signer || currentSignerProfile
-          };
+      // MediaPipe sends array of hands
+      for (let i = 0; i < multiLandmarks.length; i++) {
+        const h = multiLandmarks[i];
+        const wrist = h[0];
+        const coords = [];
+        for (let j = 0; j < h.length; j++) {
+          coords.push(h[j].x - wrist.x);
+          coords.push(h[j].y - wrist.y);
+          coords.push(h[j].z - wrist.z);
+        }
+        if (i === 0) {
+          rightCoords = coords;
+        } else if (i === 1) {
+          leftCoords = coords;
         }
       }
 
-      // --- TWO-HANDED GESTURES ---
-      if (numHands >= 2) {
-        const h2 = multiLandmarks[1];
-        const f2 = [
-          Math.hypot(h2[4].x - h2[2].x, h2[4].y - h2[2].y) > 0.08,
-          isFingerExtended(h2, 8, 6),
-          isFingerExtended(h2, 12, 10),
-          isFingerExtended(h2, 16, 14),
-          isFingerExtended(h2, 20, 18)
-        ];
-        const count2 = f2.filter(Boolean).length;
-        const wrist2 = h2[0];
-        const distWrists = Math.hypot(wrist1.x - wrist2.x, wrist1.y - wrist2.y);
+      if (multiLandmarks.length >= 2) {
+        return rightCoords.concat(leftCoords); // 126 features
+      }
+      return rightCoords; // 63 features
+    }
 
-        // 1. HOW-ARE-YOU: Both hands open/cupped in front of chest
-        if (distWrists < 0.38 && wrist1.y > 0.38 && wrist2.y > 0.38 && count1 >= 3 && count2 >= 3) {
-          return { gloss: "HOW-ARE-YOU", english: "How are you?", conf: 96 };
+    async function sendSTGCNInference(frames, handCount) {
+      if (isStgcnBusy) return;
+      isStgcnBusy = true;
+      try {
+        const resp = await fetch('/api/predict_stgcn', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            frames: frames,
+            hand_count: handCount,
+            velocity: 0.01
+          })
+        });
+        const data = await resp.json();
+        handleSTGCNResponse(data);
+      } catch (err) {
+        console.error("STGCN request error:", err);
+      } finally {
+        isStgcnBusy = false;
+      }
+    }
+
+    function handleSTGCNResponse(data) {
+      if (!data) return;
+      const glossEl = document.getElementById("bridgeGloss");
+      const statusEl = document.getElementById("bridgeStatusMsg");
+      const confValEl = document.getElementById("bridgeConfVal");
+      const confBarEl = document.getElementById("bridgeConfBar");
+      const phraseEl = document.getElementById("currentPhraseText");
+      const modeEl = document.getElementById("bridgeModelMode");
+      const energyLabel = document.getElementById("bridgeEnergyLabel");
+
+      if (modeEl && data.mode) modeEl.innerText = `🧠 ${data.mode}`;
+
+      // Update energy / confidence bar
+      const energyPct = Math.round((data.energy_ratio || 0.0) * 100);
+      if (confBarEl) confBarEl.style.width = energyPct + "%";
+      if (confValEl) confValEl.innerText = (data.confidence > 0 ? (data.confidence + "%") : "--");
+      if (energyLabel) energyLabel.innerText = energyPct > 0 ? `Hold: ${energyPct}%` : "Hold steady";
+
+      if (data.candidate) {
+        if (glossEl) glossEl.innerText = data.candidate;
+        if (statusEl) statusEl.innerText = `Holding "${data.candidate}" (${energyPct}% hold)...`;
+      }
+
+      // When SentenceEngine commits a clean word/letter
+      if (data.committed_word) {
+        if (!accumulatedWords.includes(data.committed_word)) {
+          accumulatedWords.push(data.committed_word);
         }
+        currentAccumulatedPhrase = data.current_phrase || accumulatedWords.join(" ");
+        if (phraseEl) phraseEl.innerText = currentAccumulatedPhrase;
+        if (statusEl) statusEl.innerText = `✓ Added "${data.committed_word}" to phrase!`;
 
-        // 2. MY-NAME: Two "H" shapes (index + middle) tapping or meeting
-        if (f1[1] && f1[2] && !f1[3] && !f1[4] && f2[1] && f2[2] && !f2[3] && !f2[4]) {
-          return { gloss: "MY-NAME", english: "My name is", conf: 94 };
-        }
-
-        // 3. NICE-MEET-YOU: Two index fingers meeting upright
-        if (f1[1] && !f1[2] && !f1[3] && !f1[4] && f2[1] && !f2[2] && !f2[3] && !f2[4]) {
-          const indexDist = Math.hypot(h1[8].x - h2[8].x, h1[8].y - h2[8].y);
-          if (indexDist < 0.25) {
-            return { gloss: "NICE-MEET-YOU", english: "Nice to meet you", conf: 95 };
+        // Reset auto-send timer (pause 2 seconds after signing to send entire phrase)
+        if (autoSendTimeout) clearTimeout(autoSendTimeout);
+        autoSendTimeout = setTimeout(() => {
+          if (currentAccumulatedPhrase.trim()) {
+            commitCurrentPhrase(false);
           }
-        }
-
-        // 4. HELP: One base palm flat below, one fist resting on top
-        if ((count1 >= 4 && count2 <= 1) || (count2 >= 4 && count1 <= 1)) {
-          return { gloss: "HELP", english: "Can you help me?", conf: 93 };
-        }
+        }, 2200);
       }
-
-      // --- SINGLE-HANDED GESTURES ---
-      // 5. HELLO: Open flat hand (4-5 fingers up) near temple / upper frame
-      if (wrist1.y < 0.44 && count1 >= 4 && h1[8].y < 0.35) {
-        return { gloss: "HELLO", english: "Hello!", conf: 95 };
-      }
-
-      // 6. THANK-YOU: Hand near chin (y between 0.30 and 0.50) with fingers extended
-      if (wrist1.y >= 0.28 && wrist1.y <= 0.52 && count1 >= 4 && Math.abs(wrist1.x - 0.5) < 0.28) {
-        return { gloss: "THANK-YOU", english: "Thank you!", conf: 94 };
-      }
-
-      // 7. FINE: Open 5 handshape with thumb on chest
-      if (wrist1.y >= 0.45 && wrist1.y <= 0.76 && count1 >= 4 && h1[4].x > h1[8].x - 0.12) {
-        return { gloss: "FINE", english: "I am doing fine", conf: 95 };
-      }
-
-      // 8. PLEASE: Open flat hand in middle chest
-      if (wrist1.y >= 0.48 && wrist1.y <= 0.78 && count1 >= 4 && Math.abs(wrist1.x - 0.5) < 0.22) {
-        return { gloss: "PLEASE", english: "Please", conf: 92 };
-      }
-
-      // 9. YES: Closed fist in chest/waist area
-      if (count1 === 0 && wrist1.y >= 0.40 && wrist1.y <= 0.75) {
-        return { gloss: "YES", english: "Yes", conf: 91 };
-      }
-
-      // 10. Fingerspelling Alphabet Letters:
-      // Letter "L": Index up, thumb out, other 3 down
-      if (f1[1] && f1[0] && !f1[2] && !f1[3] && !f1[4]) {
-        return { gloss: "FS_L", english: "L", conf: 95 };
-      }
-      // Letter "V": Index up, middle up, other 2 down
-      if (f1[1] && f1[2] && !f1[3] && !f1[4] && !f1[0]) {
-        return { gloss: "FS_V", english: "V", conf: 94 };
-      }
-      // Letter "B": 4 fingers up, thumb tucked
-      if (f1[1] && f1[2] && f1[3] && f1[4] && !f1[0] && wrist1.y > 0.45) {
-        return { gloss: "FS_B", english: "B", conf: 94 };
-      }
-      // Letter "Y": Thumb & pinky out, middle 3 curled
-      if (f1[0] && !f1[1] && !f1[2] && !f1[3] && f1[4]) {
-        return { gloss: "FS_Y", english: "Y", conf: 95 };
-      }
-      // Letter "I": Pinky up, all others curled
-      if (!f1[0] && !f1[1] && !f1[2] && !f1[3] && f1[4]) {
-        return { gloss: "FS_I", english: "I", conf: 93 };
-      }
-
-      return null;
     }
 
     function analyzeSignGesture(multiLandmarks) {
-      if (activeTab !== "bridge") return; // Strict guard: NEVER run bridge inference outside Bridge tab!
+      if (activeTab !== "bridge") return;
       const now = Date.now();
-      const detected = detectGestureFromFrame(multiLandmarks);
 
       const glossEl = document.getElementById("bridgeGloss");
       const statusEl = document.getElementById("bridgeStatusMsg");
       const confValEl = document.getElementById("bridgeConfVal");
       const confBarEl = document.getElementById("bridgeConfBar");
+      const phraseEl = document.getElementById("currentPhraseText");
+      const modeEl = document.getElementById("bridgeModelMode");
+      const energyLabel = document.getElementById("bridgeEnergyLabel");
 
-      if (!detected) {
-        // Decay energy smoothly
-        candidateEnergy = Math.max(0, candidateEnergy - 1);
-        if (candidateEnergy === 0) {
-          activeCandidate = null;
-          if (confBarEl) confBarEl.style.width = "0%";
-          if (confValEl) confValEl.innerText = "--";
-          if (statusEl) statusEl.innerText = "Camera tracking hands · Hold gesture steady to translate";
+      // Check if hands disappeared: reset holding state and trigger auto-send after dropping hands
+      if (!multiLandmarks || multiLandmarks.length === 0) {
+        activeCandidate = null;
+        candidateEnergy = 0;
+        if (confBarEl) confBarEl.style.width = "0%";
+        if (confValEl) confValEl.innerText = "--";
+        if (energyLabel) energyLabel.innerText = "Hold steady";
+        if (now - lastHandSeenTime > 1500 && currentAccumulatedPhrase.trim()) {
+          commitCurrentPhrase(false);
         }
         return;
       }
+      lastHandSeenTime = now;
 
-      // Check cooldown for committed sign
-      if (signCooldowns[detected.gloss] && (now - signCooldowns[detected.gloss] < COOLDOWN_MS)) {
-        return;
+      // --- 1. PRIORITY 1: CUSTOM SIGN MATCHING (From User-Taught Sign Library) ---
+      if (activeCustomSigns && activeCustomSigns.length > 0) {
+        let bestCustomMatch = null;
+        let bestConf = 0;
+
+        for (const cs of activeCustomSigns) {
+          const res = matchCustomSign(cs, multiLandmarks);
+          if (res.matched && res.confidence > bestConf) {
+            bestCustomMatch = cs;
+            bestConf = res.confidence;
+          }
+        }
+
+        if (bestCustomMatch) {
+          if (modeEl) modeEl.innerText = "⭐ Custom Sign Engine";
+          const gloss = bestCustomMatch.gloss;
+          const english = bestCustomMatch.english;
+
+          // Check cooldown to avoid double firing
+          if (!signCooldowns[gloss] || now - signCooldowns[gloss] > COOLDOWN_MS) {
+            if (activeCandidate === gloss) {
+              candidateEnergy++;
+            } else {
+              activeCandidate = gloss;
+              candidateEnergy = 1;
+            }
+
+            const energyRatio = Math.min(1.0, candidateEnergy / ENERGY_COMMIT_THRESHOLD);
+            const energyPct = Math.round(energyRatio * 100);
+
+            if (confBarEl) confBarEl.style.width = energyPct + "%";
+            if (confValEl) confValEl.innerText = bestConf + "%";
+            if (energyLabel) energyLabel.innerText = `Hold: ${energyPct}%`;
+            if (glossEl) glossEl.innerText = gloss;
+            if (statusEl) statusEl.innerText = `Holding custom sign "${gloss}" (${energyPct}% hold)...`;
+
+            // Commit sign when held steady at apex
+            if (candidateEnergy >= ENERGY_COMMIT_THRESHOLD) {
+              signCooldowns[gloss] = now;
+              candidateEnergy = 0;
+              activeCandidate = null;
+
+              if (!accumulatedWords.includes(gloss)) {
+                accumulatedWords.push(gloss);
+              }
+              currentAccumulatedPhrase = accumulatedWords.join(" ");
+              if (phraseEl) phraseEl.innerText = currentAccumulatedPhrase;
+              if (statusEl) statusEl.innerText = `✓ Confirmed "${gloss}" (${english})!`;
+
+              // Send committed custom sign to bridge chat & speak aloud
+              appendDeafSignerMessage(gloss, english, bestConf, true, bestCustomMatch.signer || currentSignerProfile);
+
+              // Auto-clear tray after 2 seconds of pause
+              if (autoSendTimeout) clearTimeout(autoSendTimeout);
+              autoSendTimeout = setTimeout(() => {
+                clearCurrentPhrase();
+              }, 2200);
+            }
+          }
+          return; // Custom sign handled, do not run background ST-GCN on this frame
+        } else {
+          // Hand present but not matching custom sign apex: decay energy smoothly
+          if (candidateEnergy > 0) {
+            candidateEnergy--;
+            const energyPct = Math.round((candidateEnergy / ENERGY_COMMIT_THRESHOLD) * 100);
+            if (confBarEl) confBarEl.style.width = energyPct + "%";
+          }
+        }
       }
 
-      // Accumulate energy
-      if (activeCandidate && activeCandidate.gloss === detected.gloss) {
-        candidateEnergy++;
-      } else {
-        activeCandidate = detected;
-        candidateEnergy = 1;
+      // --- 2. PRIORITY 2: ST-GCN NEURAL NETWORK (Fallback for Baseline Vocabulary) ---
+      const frameCoords = processLandmarksForSTGCN(multiLandmarks);
+      if (frameCoords) {
+        stgcnFrameBuffer.push(frameCoords);
+        if (stgcnFrameBuffer.length > STGCN_WINDOW_SIZE) {
+          stgcnFrameBuffer.shift();
+        }
       }
 
-      // Update HUD progress while holding
-      const ratio = Math.min(1.0, candidateEnergy / ENERGY_COMMIT_THRESHOLD);
-      if (confBarEl) confBarEl.style.width = (ratio * 100) + "%";
-      if (confValEl) confValEl.innerText = Math.round(ratio * detected.conf) + "%";
-      if (statusEl) statusEl.innerText = 'Translating "' + detected.english + '" (' + Math.round(ratio * 100) + '%)...';
-      if (glossEl) glossEl.innerText = detected.gloss;
-
-      // Commit when hold threshold is reached!
-      if (candidateEnergy >= ENERGY_COMMIT_THRESHOLD) {
-        commitSign(detected.gloss, detected.english, detected.conf, detected.isCustom, detected.signer);
-        signCooldowns[detected.gloss] = now;
-        candidateEnergy = 0;
-        activeCandidate = null;
+      if (now - lastStgcnCallTime > 90 && stgcnFrameBuffer.length >= 15) {
+        lastStgcnCallTime = now;
+        sendSTGCNInference(stgcnFrameBuffer, multiLandmarks.length);
       }
-    }
-
-    function commitSign(gloss, english, conf, isCustom = false, signer = null) {
-      if (activeTab !== "bridge") return; // Strict guard: NEVER commit bridge translations outside Bridge tab!
-      const glossEl = document.getElementById("bridgeGloss");
-      const statusEl = document.getElementById("bridgeStatusMsg");
-      const confValEl = document.getElementById("bridgeConfVal");
-      const confBarEl = document.getElementById("bridgeConfBar");
-
-      if (glossEl) glossEl.innerText = isCustom ? `${gloss} ⭐` : gloss;
-      if (statusEl) statusEl.innerText = isCustom ? `✓ Translated Custom Sign: "${english}"` : `✓ Translated: "${english}"`;
-      if (confValEl) confValEl.innerText = conf + "%";
-      if (confBarEl) confBarEl.style.width = "100%";
-
-      // Append to Two-Way Conversation
-      appendDeafSignerMessage(gloss, english, conf, isCustom, signer);
     }
 
     // Main Canvas Render Loop
