@@ -2598,6 +2598,7 @@ def get_html_content() -> str:
     let alphabetDwellCandidate = null;
     let alphabetDwellSince = 0;
     let alphabetLockedLetter = null;
+    let alphabetLockedSince = 0;
     let alphabetLastHandSeen = 0;
 
     const STABLE_HOLD_MS = 350;         // Letter hold dwell time (350ms)
@@ -2683,6 +2684,7 @@ def get_html_content() -> str:
       currentSpellingWord = '';
       currentSentenceWords = [];
       alphabetLockedLetter = null;
+      alphabetLockedSince = 0;
       alphabetDwellCandidate = null;
       updateSentenceTrayUI();
       const statusEl = document.getElementById('bridgeStatusMsg');
@@ -2751,16 +2753,38 @@ def get_html_content() -> str:
         return;
       }
 
-      // Check letter lock: do not re-commit same letter if user is still holding it
+      // Natural ASL Double-Letter Dwell System:
+      // If the letter is locked, require a deliberate 700ms continuous hold to re-commit the same letter (like in HELLO or BOOK)
+      const REPEAT_LETTER_HOLD_MS = 700;
+
       if (alphabetLockedLetter === letter) {
+        const repeatElapsed = now - alphabetLockedSince;
+        const repeatRatio = Math.min(1.0, repeatElapsed / REPEAT_LETTER_HOLD_MS);
+        const repeatPct = Math.round(repeatRatio * 100);
+
         if (glossEl) glossEl.innerText = letter;
-        if (confBarEl) confBarEl.style.width = '100%';
-        if (energyLabel) energyLabel.innerText = 'Locked: ' + letter;
-        if (statusEl) statusEl.innerText = 'Letter ' + letter + ' added · Change sign or drop hand';
-        return;
+
+        if (repeatElapsed < REPEAT_LETTER_HOLD_MS) {
+          if (confBarEl) confBarEl.style.width = repeatPct + '%';
+          if (energyLabel) energyLabel.innerText = 'Hold for double: ' + repeatPct + '%';
+          if (statusEl) statusEl.innerText = 'Keep holding ' + letter + ' to repeat letter (' + repeatPct + '%)... or switch sign';
+          return;
+        } else {
+          // Double-letter hold satisfied! Re-commit the duplicate letter
+          currentSpellingWord += letter;
+          alphabetLockedSince = now; // reset timer for possible 3rd repeat
+          if (confBarEl) confBarEl.style.width = '100%';
+          if (energyLabel) energyLabel.innerText = 'Double: ' + letter;
+          if (statusEl) statusEl.innerText = '✓ Repeated letter ' + letter + '! Word: ' + currentSpellingWord;
+          updateSentenceTrayUI();
+          return;
+        }
       }
 
-      // Dwell state machine
+      // Switching to a different letter releases any prior lock immediately
+      alphabetLockedLetter = null;
+
+      // Dwell state machine for new letter
       if (alphabetDwellCandidate === letter) {
         const elapsed = now - alphabetDwellSince;
         const ratio = Math.min(1.0, elapsed / STABLE_HOLD_MS);
@@ -2775,6 +2799,7 @@ def get_html_content() -> str:
           // Commit letter to current word!
           currentSpellingWord += letter;
           alphabetLockedLetter = letter;
+          alphabetLockedSince = now;
           alphabetDwellCandidate = null;
 
           if (confBarEl) confBarEl.style.width = '100%';
