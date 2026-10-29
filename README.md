@@ -127,7 +127,7 @@ python benchmark_library.py        # prints the per-template DTW report
 
 ## Demo
 
-- **Video:** TODO: paste demo video link
+- **Video:** [https://drive.google.com/file/d/10vX1_B8E7Q7uxCwD8JUr7ZDMkoyCSEhi/view?usp=sharing](https://drive.google.com/file/d/10vX1_B8E7Q7uxCwD8JUr7ZDMkoyCSEhi/view?usp=sharing)
 - **Screenshots:** TODO
 
 Sample output from `GET /api/synthesize?text=hello how are you`:
