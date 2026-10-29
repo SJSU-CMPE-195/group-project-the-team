@@ -1383,6 +1383,9 @@ def get_html_content() -> str:
     // --- NAVIGATION ---
     function switchTab(tab) {
       activeTab = tab;
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      activeCandidate = null;
+      candidateEnergy = 0;
       document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
@@ -1628,6 +1631,9 @@ def get_html_content() -> str:
         recordBtn.innerHTML = "<span>⏺</span> <span>Record attempt</span>";
       }
 
+      // Speak the target sentence so audio matches avatar demonstration
+      speakText(text);
+
       // Synthesize custom sentence video
       try {
         const resp = await fetch("/api/synthesize?text=" + encodeURIComponent(text));
@@ -1683,6 +1689,9 @@ def get_html_content() -> str:
       v.currentTime = 0;
       v.playbackRate = slowMo ? 0.5 : 1.0;
       v.play();
+      const inputVal = (document.getElementById("learnTextInput") && document.getElementById("learnTextInput").value.trim());
+      const target = inputVal || currentCustomTarget || currentSign || "Hello";
+      speakText(target);
     }
 
     function toggleSlowMo() {
@@ -1772,6 +1781,8 @@ def get_html_content() -> str:
 
       updateCoachingTips(target, true).then(() => {
         if (badge) badge.innerText = "Attempt Evaluated!";
+        // In Learn mode, TTS strictly pronounces the target sign/sentence being practiced
+        speakText(target);
       });
     }
 
@@ -2260,8 +2271,10 @@ def get_html_content() -> str:
             document.getElementById('camBadgeText').innerText =
               count === 2 ? 'Camera on · both hands tracked' : 'Camera on · 1 hand tracked';
             
-            // Real-time sign gesture recognition from live coordinates
-            analyzeSignGesture(results.multiHandLandmarks);
+            // Real-time sign gesture recognition from live coordinates: ONLY on the Bridge tab!
+            if (activeTab === "bridge") {
+              analyzeSignGesture(results.multiHandLandmarks);
+            }
           } else {
             lastHandLandmarks = [];
             document.getElementById('camBadgeText').innerText = 'Camera on · show hands';
@@ -2537,6 +2550,7 @@ def get_html_content() -> str:
     }
 
     function analyzeSignGesture(multiLandmarks) {
+      if (activeTab !== "bridge") return; // Strict guard: NEVER run bridge inference outside Bridge tab!
       const now = Date.now();
       const detected = detectGestureFromFrame(multiLandmarks);
 
@@ -2587,6 +2601,7 @@ def get_html_content() -> str:
     }
 
     function commitSign(gloss, english, conf, isCustom = false, signer = null) {
+      if (activeTab !== "bridge") return; // Strict guard: NEVER commit bridge translations outside Bridge tab!
       const glossEl = document.getElementById("bridgeGloss");
       const statusEl = document.getElementById("bridgeStatusMsg");
       const confValEl = document.getElementById("bridgeConfVal");
