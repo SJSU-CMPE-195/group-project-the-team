@@ -592,20 +592,41 @@ class UnifiedBridgeHandler(SimpleHTTPRequestHandler):
         slug = re.sub(r'[^a-z0-9_-]', '', gloss.lower().replace(' ', '-'))
         json_file = SIGNS_DIR / f"{slug}.json"
         
-        for i in range(1, 10):
-            t_file = TENSORS_DIR / f"{slug}_{i:03d}.npy"
-            if t_file.exists():
+        # 1. Search all JSON files in SIGNS_DIR for matching gloss or slug
+        if SIGNS_DIR.exists():
+            for jf in list(SIGNS_DIR.glob("*.json")):
                 try:
-                    t_file.unlink()
-                except Exception:
+                    with open(jf, "r") as f:
+                        sdata = json.load(f)
+                    file_gloss = str(sdata.get("gloss", "")).strip().upper()
+                    if file_gloss == gloss or jf.stem.lower() == slug.lower() or jf.stem.lower() == gloss.lower():
+                        for t in sdata.get("templates", []):
+                            tf = t.get("tensor_file")
+                            if tf and (TENSORS_DIR / tf).exists():
+                                try:
+                                    (TENSORS_DIR / tf).unlink()
+                                except Exception:
+                                    pass
+                        jf.unlink()
+                except Exception as e:
                     pass
 
+        # 2. Also check direct json_file
         if json_file.exists():
             try:
                 json_file.unlink()
             except Exception:
                 pass
 
+        # 3. Clean up any remaining tensor files matching slug
+        if TENSORS_DIR.exists():
+            for t_file in list(TENSORS_DIR.glob(f"{slug}*.npy")):
+                try:
+                    t_file.unlink()
+                except Exception:
+                    pass
+
+        # 4. Remove from in-memory SIGNS_INFO
         if gloss in SIGNS_INFO:
             del SIGNS_INFO[gloss]
 

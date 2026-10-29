@@ -1156,7 +1156,7 @@ def get_html_content() -> str:
       <div class="learn-input-card">
         <div class="learn-input-row">
           <input type="text" id="learnTextInput" class="learn-input-field" 
-                 placeholder="Type any sentence to demonstrate (e.g. 'How are you?', 'My name is Aramish', 'Nice to meet you')" 
+                 placeholder="Type any sentence to demonstrate (e.g. 'How are you?', 'My name is Alex', 'Nice to meet you')" 
                  oninput="handleCustomTextInput(this.value)"
                  onkeydown="if(event.key==='Enter') demonstrateCustomSentence()">
           <button class="btn-teach-sign" onclick="demonstrateCustomSentence()">
@@ -1168,7 +1168,7 @@ def get_html_content() -> str:
           <span class="learn-quick-label">Try Examples:</span>
           <span class="chip-sm" onclick="setAndDemonstrate('How are you?')">How are you?</span>
           <span class="chip-sm" onclick="setAndDemonstrate('Hello!')">Hello!</span>
-          <span class="chip-sm" onclick="setAndDemonstrate('My name is Aramish')">My name is Aramish</span>
+          <span class="chip-sm" onclick="setAndDemonstrate('My name is Alex')">My name is Alex</span>
           <span class="chip-sm" onclick="setAndDemonstrate('Nice to meet you')">Nice to meet you</span>
           <span class="chip-sm" onclick="setAndDemonstrate('What is your name?')">What is your name?</span>
           <span class="chip-sm" onclick="setAndDemonstrate('Thank you')">Thank you</span>
@@ -1943,7 +1943,7 @@ def get_html_content() -> str:
             card.innerHTML = `
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div class="lib-badge custom">⭐ CUSTOM · ${signerName}</div>
-                <button onclick="deleteCustomSign('${gloss}')" style="background: transparent; border: none; color: #ef4444; cursor: pointer; font-size: 0.85rem; padding: 2px 6px; border-radius: 4px;" title="Delete custom sign">🗑 Delete</button>
+                <button type="button" onclick="deleteCustomSign(event, '${gloss}')" style="background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; cursor: pointer; font-size: 0.78rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s ease;" title="Delete custom sign in 1 click">🗑 Delete</button>
               </div>
               <div class="lib-title" style="color: #0f766e;">${gloss}</div>
               <div class="lib-sub">English: "${info.english}"</div>
@@ -1984,15 +1984,39 @@ def get_html_content() -> str:
       }
     }
 
-    function deleteCustomSign(gloss) {
-      if (!confirm(`Are you sure you want to remove the custom sign "${gloss}" from your library?`)) return;
+    function deleteCustomSign(event, gloss) {
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+
+      // Visual feedback immediately on clicked element
+      const btn = event && (event.currentTarget || event.target);
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Deleting...';
+        btn.style.opacity = '0.6';
+        btn.style.pointerEvents = 'none';
+      }
+
+      // Optimistically remove from local state
+      if (signsData && signsData[gloss]) {
+        delete signsData[gloss];
+      }
+      activeCustomSigns = activeCustomSigns.filter(s => s.gloss !== gloss);
+
+      // Instant 1-click delete on backend
       fetch('/api/delete_custom_sign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ gloss })
       })
       .then(r => r.json())
-      .then(() => {
+      .then(res => {
+        renderLibrary();
+      })
+      .catch(err => {
+        console.error('Delete custom sign failed:', err);
         renderLibrary();
       });
     }

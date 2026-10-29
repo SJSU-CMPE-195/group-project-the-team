@@ -173,3 +173,4 @@ web_static/videos/
 web_static/poses/
 pose_cache/
 *.mp4
+library_backup/
