@@ -2600,6 +2600,8 @@ def get_html_content() -> str:
     let alphabetLockedLetter = null;
     let alphabetLockedSince = 0;
     let alphabetLastHandSeen = 0;
+    let spaceGestureSince = 0;
+    let lastSpaceTriggerTime = 0;
 
     const STABLE_HOLD_MS = 350;         // Letter hold dwell time (350ms)
     const POST_COMMIT_PAUSE_MS = 550;   // Grace period after letter committed: ignore accidental repeats
@@ -2808,6 +2810,34 @@ def get_html_content() -> str:
       }
     }
 
+    // Helper: count how many fingers are extended on a hand
+    function countExtendedFingers(landmarks) {
+      if (!landmarks || landmarks.length !== 21) return 0;
+      let count = 0;
+      const wrist = landmarks[0];
+
+      // 4 Fingers (Index 8, Middle 12, Ring 16, Pinky 20)
+      const tips = [8, 12, 16, 20];
+      const pips = [6, 10, 14, 18];
+      for (let i = 0; i < 4; i++) {
+        const tip = landmarks[tips[i]];
+        const pip = landmarks[pips[i]];
+        // Distances from wrist: extended finger tip is farther than PIP
+        const dTip = Math.hypot(tip.x - wrist.x, tip.y - wrist.y);
+        const dPip = Math.hypot(pip.x - wrist.x, pip.y - wrist.y);
+        if (dTip > dPip * 1.15) count++;
+      }
+
+      // Thumb (Tip 4, MCP 2)
+      const thumbTip = landmarks[4];
+      const thumbMcp = landmarks[2];
+      const dThumbTip = Math.hypot(thumbTip.x - wrist.x, thumbTip.y - wrist.y);
+      const dThumbMcp = Math.hypot(thumbMcp.x - wrist.x, thumbMcp.y - wrist.y);
+      if (dThumbTip > dThumbMcp * 1.1) count++;
+
+      return count;
+    }
+
     // Main Analysis Entrypoint
     function analyzeSignGesture(multiLandmarks) {
       if (activeTab !== 'bridge') return;
@@ -2847,6 +2877,45 @@ def get_html_content() -> str:
         return;
       }
       alphabetLastHandSeen = now;
+
+      // -------------------------------------------------------------
+      // GESTURE SHORTCUT: 10 OPEN FINGERS (BOTH HANDS) -> SPACE BAR ␣
+      // -------------------------------------------------------------
+      if (multiLandmarks.length >= 2) {
+        const fingers1 = countExtendedFingers(multiLandmarks[0]);
+        const fingers2 = countExtendedFingers(multiLandmarks[1]);
+        const totalFingers = fingers1 + fingers2;
+
+        if (totalFingers >= 8) { // Open palms with 8-10 fingers extended towards camera
+          if (now - lastSpaceTriggerTime > 1200) { // Cooldown between space gestures
+            if (spaceGestureSince === 0) {
+              spaceGestureSince = now;
+            }
+            const spaceElapsed = now - spaceGestureSince;
+            const spaceRatio = Math.min(1.0, spaceElapsed / 350); // Hold 350ms to trigger space
+            const spacePct = Math.round(spaceRatio * 100);
+
+            if (glossEl) glossEl.innerText = '␣ SPACE BAR';
+            if (confBarEl) confBarEl.style.width = spacePct + '%';
+            if (energyLabel) energyLabel.innerText = 'Space: ' + spacePct + '%';
+            if (statusEl) statusEl.innerText = '🙌 10 Fingers Open: Holding for Space Bar (' + spacePct + '%)...';
+
+            if (spaceElapsed >= 350) {
+              lastSpaceTriggerTime = now;
+              spaceGestureSince = 0;
+              manualWordSpace();
+              if (confBarEl) confBarEl.style.width = '100%';
+              if (energyLabel) energyLabel.innerText = 'Space Applied!';
+              if (statusEl) statusEl.innerText = '✓ Space inserted! Ready for next word in sentence.';
+            }
+            return;
+          }
+        } else {
+          spaceGestureSince = 0;
+        }
+      } else {
+        spaceGestureSince = 0;
+      }
 
       // -------------------------------------------------------------
       // MODE 1: CUSTOM SIGN LIBRARY (Exact User-Taught Signs Only)
